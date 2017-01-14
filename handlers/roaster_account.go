@@ -1,16 +1,17 @@
 package handlers
 
-import(
+import (
 	"fmt"
 
-	"gopkg.in/gin-gonic/gin.v1"
 	"github.com/pborman/uuid"
+	"gopkg.in/gin-gonic/gin.v1"
 
-	"github.com/jonnykry/expresso-billing/containers"
-	"github.com/jonnykry/expresso-billing/gateways"
+	"github.com/ghmeier/bloodlines/gateways"
+	"github.com/jonnykry/expresso-billing/helpers"
+	"github.com/jonnykry/expresso-billing/models"
 )
 
-type RoasterAccountIfc interface {
+type RoasterAccountI interface {
 	New(ctx *gin.Context)
 	ViewAll(ctx *gin.Context)
 	View(ctx *gin.Context)
@@ -19,74 +20,77 @@ type RoasterAccountIfc interface {
 }
 
 type RoasterAccount struct {
-	sql *gateways.Sql
+	Helper *helpers.RoasterAccount
 }
 
-func NewRoasterAccount(sql *gateways.Sql) RoasterAccountIfc {
-	return &RoasterAccount{sql: sql}
+func NewRoasterAccount(sql gateways.SQL) RoasterAccountI {
+	return &RoasterAccount{Helper: helpers.NewRoasterAccount(sql)}
 }
 
 func (c *RoasterAccount) New(ctx *gin.Context) {
-	var json containers.RoasterAccount
+	var json models.RoasterAccount
 	err := ctx.BindJSON(&json)
 
 	if err != nil {
 		ctx.JSON(400, errResponse("Invalid RoasterAccount Object"))
-		fmt.Printf("%s",err.Error())
+		fmt.Printf("%s", err.Error())
 		return
 	}
 
-  // TODO:  Update parameters
-	err = c.sql.Modify(
-		"INSERT INTO roaster_account VALUE(?)",
-		uuid.New())
+	// TODO: create stripe account?
+
+	account := models.NewRoasterAccount(json.UserID, json.AccountID)
+	err = c.Helper.Insert(account)
 	if err != nil {
-		ctx.JSON(500, &gin.H{"error": err, "message": err.Error()})
+		ctx.JSON(500, &gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(200, empty())
+
+	ctx.JSON(200, &gin.H{"data": account})
 }
 
 func (c *RoasterAccount) ViewAll(ctx *gin.Context) {
-	rows, err := c.sql.Select("SELECT * FROM roaster_account")
-	if err != nil {
-		 ctx.JSON(500, errResponse(err.Error()))
-		 return
-	}
-	roasterAccount, err := containers.FromSql(rows)
+	offset, limit := getPaging(ctx)
+
+	accounts, err := c.Helper.GetAll(offset, limit)
 	if err != nil {
 		ctx.JSON(500, errResponse(err.Error()))
 		return
 	}
 
-	ctx.JSON(200, gin.H{"data": roasterAccount})
+	ctx.JSON(200, gin.H{"data": accounts})
 }
 
 func (c *RoasterAccount) View(ctx *gin.Context) {
-	//var json models.RoasterAccount
 	id := ctx.Param("accountId")
-	if id == "" {
-		ctx.JSON(500, errResponse("accountId is a required parameter"))
-		return
-	}
 
-	rows, err := c.sql.Select("SELECT * FROM roaster_account WHERE id=?", id)
+	account, err := c.Helper.GetByID(uuid.Parse(id))
 	if err != nil {
 		ctx.JSON(500, errResponse(err.Error()))
 		return
 	}
 
-	roasterAccount, err := containers.FromSql(rows)
-	if err != nil {
-		ctx.JSON(500, errResponse(err.Error()))
-		return
-	}
-
-	ctx.JSON(200, gin.H{"data": roasterAccount})
+	ctx.JSON(200, gin.H{"data": account})
 }
 
 func (c *RoasterAccount) Update(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	id := ctx.Param("accountId")
+
+	var json models.RoasterAccount
+	err := ctx.BindJSON(&json)
+	if err != nil {
+		ctx.JSON(400, errResponse(err.Error()))
+		return
+	}
+
+	err = c.Helper.Update(&json)
+	if err != nil {
+		ctx.JSON(500, errResponse(err.Error()))
+		return
+	}
+
+	json.ID = uuid.Parse(id)
+	ctx.JSON(200, &gin.H{"data": json})
 }
 
 func (c *RoasterAccount) Deactivate(ctx *gin.Context) {

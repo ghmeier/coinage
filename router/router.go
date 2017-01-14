@@ -5,36 +5,36 @@ import (
 
 	"gopkg.in/gin-gonic/gin.v1"
 
+	"github.com/ghmeier/bloodlines/config"
+	"github.com/ghmeier/bloodlines/gateways"
 	"github.com/jonnykry/expresso-billing/handlers"
-	"github.com/jonnykry/expresso-billing/gateways"
 )
 
 type Billing struct {
-	router 	          *gin.Engine
-  roasterAccount    handlers.RoasterAccountIfc
+	router         *gin.Engine
+	roasterAccount handlers.RoasterAccountI
 }
 
-func New() (*Billing, error) {
-	sql, err := gateways.NewSql()
-
-  if err != nil {
+func New(config *config.Root) (*Billing, error) {
+	sql, err := gateways.NewSQL(config.SQL)
+	if err != nil {
 		fmt.Println("ERROR: could not connect to mysql.")
 		fmt.Println(err.Error())
 		return nil, err
 	}
 
 	b := &Billing{
-		roasterAccount: 	handlers.NewRoasterAccount(sql),
+		roasterAccount: handlers.NewRoasterAccount(sql),
 	}
 	b.router = gin.Default()
 
-	roasterAccount := b.router.Group("/api/billing/roaster/account")
+	roaster := b.router.Group("/api/billing/roaster/account")
 	{
-		roasterAccount.POST("",b.roasterAccount.New)
-		roasterAccount.GET("",b.roasterAccount.ViewAll)
-		roasterAccount.GET("/:accountId", b.roasterAccount.View)
-		roasterAccount.PUT("/:accountId", b.roasterAccount.Update)
-		roasterAccount.DELETE("/:accountId", b.roasterAccount.Deactivate)
+		roaster.POST("", b.roasterAccount.New)
+		roaster.GET("", b.roasterAccount.ViewAll)
+		roaster.GET("/:accountId", b.roasterAccount.View)
+		roaster.PUT("/:accountId", b.roasterAccount.Update)
+		roaster.DELETE("/:accountId", b.roasterAccount.Deactivate)
 	}
 
 	return b, nil

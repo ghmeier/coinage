@@ -5,36 +5,54 @@ import (
 
 	"gopkg.in/gin-gonic/gin.v1"
 
+	"github.com/ghmeier/bloodlines/config"
+	"github.com/ghmeier/bloodlines/gateways"
 	"github.com/jonnykry/expresso-billing/handlers"
-	"github.com/jonnykry/expresso-billing/gateways"
 )
 
 type Billing struct {
-	router 	          *gin.Engine
-  roasterAccount    handlers.RoasterAccountIfc
+	router              *gin.Engine
+	roasterAccount      handlers.RoasterAccountI
+	customerAccount     handlers.CustomerAccountI
+	billingSubscription handlers.BillingSubscriptionI
 }
 
-func New() (*Billing, error) {
-	sql, err := gateways.NewSql()
-
-  if err != nil {
+func New(config *config.Root) (*Billing, error) {
+	sql, err := gateways.NewSQL(config.SQL)
+	if err != nil {
 		fmt.Println("ERROR: could not connect to mysql.")
 		fmt.Println(err.Error())
 		return nil, err
 	}
 
 	b := &Billing{
-		roasterAccount: 	handlers.NewRoasterAccount(sql),
+		roasterAccount:      handlers.NewRoasterAccount(sql),
+		customerAccount:     handlers.NewCustomerAccount(sql),
+		billingSubscription: handlers.NewBillingSubscription(sql),
 	}
 	b.router = gin.Default()
 
-	roasterAccount := b.router.Group("/api/billing/roaster/account")
+	roaster := b.router.Group("/api/billing/roaster")
 	{
-		roasterAccount.POST("",b.roasterAccount.New)
-		roasterAccount.GET("",b.roasterAccount.ViewAll)
-		roasterAccount.GET("/:accountId", b.roasterAccount.View)
-		roasterAccount.PUT("/:accountId", b.roasterAccount.Update)
-		roasterAccount.DELETE("/:accountId", b.roasterAccount.Deactivate)
+		roaster.POST("", b.roasterAccount.New)
+		roaster.GET("", b.roasterAccount.ViewAll)
+		roaster.GET("/:accountId", b.roasterAccount.View)
+		roaster.PUT("/:accountId", b.roasterAccount.Update)
+		roaster.DELETE("/:accountId", b.roasterAccount.Deactivate)
+	}
+	customer := b.router.Group("/api/billing/customer")
+	{
+		customer.POST("", b.customerAccount.New)
+		customer.GET("", b.customerAccount.ViewAll)
+		customer.GET("/:accountId", b.customerAccount.View)
+		customer.DELETE("/:accountId", b.customerAccount.Delete)
+	}
+	subscription := b.router.Group("/api/billing/subscription")
+	{
+		subscription.POST("", b.billingSubscription.New)
+		subscription.GET("", b.billingSubscription.Filter)
+		subscription.GET("/:subscriptionId", b.billingSubscription.View)
+		subscription.PUT("/:subscriptionId", b.billingSubscription.Update)
 	}
 
 	return b, nil

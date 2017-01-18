@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/pborman/uuid"
 	"gopkg.in/gin-gonic/gin.v1"
 
 	"github.com/ghmeier/bloodlines/gateways"
-	"github.com/jonnykry/expresso-billing/helpers"
-	"github.com/jonnykry/expresso-billing/models"
+	"github.com/ghmeier/bloodlines/handlers"
+	"github.com/jonnykry/coinage/helpers"
+	"github.com/jonnykry/coinage/models"
 )
 
 type RoasterAccountI interface {
@@ -32,8 +31,7 @@ func (c *RoasterAccount) New(ctx *gin.Context) {
 	err := ctx.BindJSON(&json)
 
 	if err != nil {
-		ctx.JSON(400, errResponse("Invalid RoasterAccount Object"))
-		fmt.Printf("%s", err.Error())
+		handlers.UserError(ctx, "Error: unable to parse json", nil)
 		return
 	}
 
@@ -42,23 +40,23 @@ func (c *RoasterAccount) New(ctx *gin.Context) {
 	account := models.NewRoasterAccount(json.UserID, json.AccountID)
 	err = c.Helper.Insert(account)
 	if err != nil {
-		ctx.JSON(500, &gin.H{"error": err.Error()})
+		handlers.ServerError(ctx, err, json)
 		return
 	}
 
-	ctx.JSON(200, &gin.H{"data": account})
+	handlers.Success(ctx, account)
 }
 
 func (c *RoasterAccount) ViewAll(ctx *gin.Context) {
-	offset, limit := getPaging(ctx)
+	offset, limit := handlers.GetPaging(ctx)
 
 	accounts, err := c.Helper.GetAll(offset, limit)
 	if err != nil {
-		ctx.JSON(500, errResponse(err.Error()))
+		handlers.ServerError(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(200, gin.H{"data": accounts})
+	handlers.Success(ctx, accounts)
 }
 
 func (c *RoasterAccount) View(ctx *gin.Context) {
@@ -66,11 +64,11 @@ func (c *RoasterAccount) View(ctx *gin.Context) {
 
 	account, err := c.Helper.GetByID(uuid.Parse(id))
 	if err != nil {
-		ctx.JSON(500, errResponse(err.Error()))
+		handlers.ServerError(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(200, gin.H{"data": account})
+	handlers.Success(ctx, account)
 }
 
 func (c *RoasterAccount) Update(ctx *gin.Context) {
@@ -79,20 +77,20 @@ func (c *RoasterAccount) Update(ctx *gin.Context) {
 	var json models.RoasterAccount
 	err := ctx.BindJSON(&json)
 	if err != nil {
-		ctx.JSON(400, errResponse(err.Error()))
+		handlers.UserError(ctx, "Error: unable to parse json", nil)
 		return
 	}
 
 	err = c.Helper.Update(&json)
 	if err != nil {
-		ctx.JSON(500, errResponse(err.Error()))
+		handlers.ServerError(ctx, err, json)
 		return
 	}
 
 	json.ID = uuid.Parse(id)
-	ctx.JSON(200, &gin.H{"data": json})
+	handlers.Success(ctx, json)
 }
 
 func (c *RoasterAccount) Deactivate(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	handlers.Success(ctx, nil)
 }

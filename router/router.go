@@ -7,7 +7,7 @@ import (
 
 	"github.com/ghmeier/bloodlines/config"
 	"github.com/ghmeier/bloodlines/gateways"
-	"github.com/jonnykry/expresso-billing/handlers"
+	"github.com/jonnykry/coinage/handlers"
 )
 
 type Billing struct {
@@ -32,7 +32,7 @@ func New(config *config.Root) (*Billing, error) {
 	}
 	b.router = gin.Default()
 
-	roaster := b.router.Group("/api/billing/roaster")
+	roaster := b.router.Group("/api/roaster")
 	{
 		roaster.POST("", b.roasterAccount.New)
 		roaster.GET("", b.roasterAccount.ViewAll)
@@ -40,14 +40,14 @@ func New(config *config.Root) (*Billing, error) {
 		roaster.PUT("/:accountId", b.roasterAccount.Update)
 		roaster.DELETE("/:accountId", b.roasterAccount.Deactivate)
 	}
-	customer := b.router.Group("/api/billing/customer")
+	customer := b.router.Group("/api/customer")
 	{
 		customer.POST("", b.customerAccount.New)
 		customer.GET("", b.customerAccount.ViewAll)
 		customer.GET("/:accountId", b.customerAccount.View)
 		customer.DELETE("/:accountId", b.customerAccount.Delete)
 	}
-	subscription := b.router.Group("/api/billing/subscription")
+	subscription := b.router.Group("/api/subscription")
 	{
 		subscription.POST("", b.billingSubscription.New)
 		subscription.GET("", b.billingSubscription.Filter)

@@ -4,7 +4,7 @@ import (
 	"github.com/pborman/uuid"
 
 	"github.com/ghmeier/bloodlines/gateways"
-	"github.com/jonnykry/expresso-billing/models"
+	"github.com/jonnykry/coinage/models"
 )
 
 type baseHelper struct {
@@ -31,7 +31,7 @@ func (r *RoasterAccount) Insert(account *models.RoasterAccount) error {
 }
 
 func (r *RoasterAccount) GetAll(offset int, limit int) ([]*models.RoasterAccount, error) {
-	rows, err := r.sql.Select("SELECT id, userId, accountId from roaster_account ORDER BY id ASC LIMIT ?,?", offset, limit)
+	rows, err := r.sql.Select("SELECT id, userId, stripeAccountId from roaster_account ORDER BY id ASC LIMIT ?,?", offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (r *RoasterAccount) GetAll(offset int, limit int) ([]*models.RoasterAccount
 }
 
 func (r *RoasterAccount) GetByID(id uuid.UUID) (*models.RoasterAccount, error) {
-	rows, err := r.sql.Select("SELECT id, userId, accountId FROM roaster_account WHERE id=?", id)
+	rows, err := r.sql.Select("SELECT id, userId, stripeAccountId FROM roaster_account WHERE id=?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (r *RoasterAccount) GetByID(id uuid.UUID) (*models.RoasterAccount, error) {
 }
 
 func (r *RoasterAccount) Update(account *models.RoasterAccount) error {
-	err := r.sql.Modify("UPDATE roaster_account SET userId=?,accountId=? WHERE id=?",
+	err := r.sql.Modify("UPDATE roaster_account SET userId=?,stripeAccountId=? WHERE id=?",
 		account.UserID,
 		account.AccountID,
 		account.ID,

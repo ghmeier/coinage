@@ -4,7 +4,8 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 
 	"github.com/ghmeier/bloodlines/gateways"
-	"github.com/jonnykry/expresso-billing/helpers"
+	"github.com/ghmeier/bloodlines/handlers"
+	"github.com/jonnykry/coinage/helpers"
 )
 
 type CustomerAccountI interface {
@@ -25,17 +26,17 @@ func NewCustomerAccount(sql gateways.SQL) CustomerAccountI {
 }
 
 func (c *CustomerAccount) New(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	handlers.Success(ctx, nil)
 }
 
 func (c *CustomerAccount) ViewAll(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	handlers.Success(ctx, nil)
 }
 
 func (c *CustomerAccount) View(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	handlers.Success(ctx, nil)
 }
 
 func (c *CustomerAccount) Delete(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	handlers.Success(ctx, nil)
 }

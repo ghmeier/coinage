@@ -1,15 +1,15 @@
-# expresso-billing
+# coinage
 A go service for handling Expresso billing
 
 ## Quick Start
 ```bash
-$ docker run jonnykry/expresso-billing:latest
+$ docker run ghmeier/coinage:latest
 ```
 
 ## Setup
 ```bash
-$ go get github.com/jonnykry/expresso-billing
-$ cd $GOPATH/src/github.com/jonnykry/expresso-billing
+$ go get github.com/jonnykry/coinage
+$ cd $GOPATH/src/github.com/jonnykry/coinage
 $ make deps
 $ make run
 ```

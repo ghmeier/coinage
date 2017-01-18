@@ -6,4 +6,4 @@ deps:
 
 run:
 	go build
-	./expresso-billing
+	./coinage

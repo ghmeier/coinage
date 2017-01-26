@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/pborman/uuid"
+	"gopkg.in/alexcesaro/statsd.v2"
 	"gopkg.in/gin-gonic/gin.v1"
 
-	"github.com/ghmeier/bloodlines/gateways"
-	"github.com/jonnykry/expresso-billing/helpers"
-	"github.com/jonnykry/expresso-billing/models"
+	"github.com/ghmeier/bloodlines/handlers"
+	"github.com/jonnykry/coinage/helpers"
+	"github.com/jonnykry/coinage/models"
 )
 
 type RoasterAccountI interface {
@@ -20,11 +19,16 @@ type RoasterAccountI interface {
 }
 
 type RoasterAccount struct {
+	*handlers.BaseHandler
 	Helper *helpers.RoasterAccount
 }
 
-func NewRoasterAccount(sql gateways.SQL) RoasterAccountI {
-	return &RoasterAccount{Helper: helpers.NewRoasterAccount(sql)}
+func NewRoasterAccount(ctx *handlers.GatewayContext) RoasterAccountI {
+	stats := ctx.Stats.Clone(statsd.Prefix("api.roaster_account"))
+	return &RoasterAccount{
+		Helper:      helpers.NewRoasterAccount(ctx.Sql),
+		BaseHandler: &handlers.BaseHandler{Stats: stats},
+	}
 }
 
 func (c *RoasterAccount) New(ctx *gin.Context) {
@@ -32,8 +36,7 @@ func (c *RoasterAccount) New(ctx *gin.Context) {
 	err := ctx.BindJSON(&json)
 
 	if err != nil {
-		ctx.JSON(400, errResponse("Invalid RoasterAccount Object"))
-		fmt.Printf("%s", err.Error())
+		c.UserError(ctx, "Error: unable to parse json", nil)
 		return
 	}
 
@@ -42,23 +45,23 @@ func (c *RoasterAccount) New(ctx *gin.Context) {
 	account := models.NewRoasterAccount(json.UserID, json.AccountID)
 	err = c.Helper.Insert(account)
 	if err != nil {
-		ctx.JSON(500, &gin.H{"error": err.Error()})
+		c.ServerError(ctx, err, json)
 		return
 	}
 
-	ctx.JSON(200, &gin.H{"data": account})
+	c.Success(ctx, account)
 }
 
 func (c *RoasterAccount) ViewAll(ctx *gin.Context) {
-	offset, limit := getPaging(ctx)
+	offset, limit := c.GetPaging(ctx)
 
 	accounts, err := c.Helper.GetAll(offset, limit)
 	if err != nil {
-		ctx.JSON(500, errResponse(err.Error()))
+		c.ServerError(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(200, gin.H{"data": accounts})
+	c.Success(ctx, accounts)
 }
 
 func (c *RoasterAccount) View(ctx *gin.Context) {
@@ -66,11 +69,11 @@ func (c *RoasterAccount) View(ctx *gin.Context) {
 
 	account, err := c.Helper.GetByID(uuid.Parse(id))
 	if err != nil {
-		ctx.JSON(500, errResponse(err.Error()))
+		c.ServerError(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(200, gin.H{"data": account})
+	c.Success(ctx, account)
 }
 
 func (c *RoasterAccount) Update(ctx *gin.Context) {
@@ -79,20 +82,20 @@ func (c *RoasterAccount) Update(ctx *gin.Context) {
 	var json models.RoasterAccount
 	err := ctx.BindJSON(&json)
 	if err != nil {
-		ctx.JSON(400, errResponse(err.Error()))
+		c.UserError(ctx, "Error: unable to parse json", nil)
 		return
 	}
 
 	err = c.Helper.Update(&json)
 	if err != nil {
-		ctx.JSON(500, errResponse(err.Error()))
+		c.ServerError(ctx, err, json)
 		return
 	}
 
 	json.ID = uuid.Parse(id)
-	ctx.JSON(200, &gin.H{"data": json})
+	c.Success(ctx, json)
 }
 
 func (c *RoasterAccount) Deactivate(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	c.Success(ctx, nil)
 }

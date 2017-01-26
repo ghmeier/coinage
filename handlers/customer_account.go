@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"gopkg.in/alexcesaro/statsd.v2"
 	"gopkg.in/gin-gonic/gin.v1"
 
-	"github.com/ghmeier/bloodlines/gateways"
-	"github.com/jonnykry/expresso-billing/helpers"
+	"github.com/ghmeier/bloodlines/handlers"
+	"github.com/jonnykry/coinage/helpers"
 )
 
 type CustomerAccountI interface {
@@ -15,27 +16,30 @@ type CustomerAccountI interface {
 }
 
 type CustomerAccount struct {
+	*handlers.BaseHandler
 	Helper *helpers.CustomerAccount
 }
 
-func NewCustomerAccount(sql gateways.SQL) CustomerAccountI {
+func NewCustomerAccount(ctx *handlers.GatewayContext) CustomerAccountI {
+	stats := ctx.Stats.Clone(statsd.Prefix("api.customer_account"))
 	return &CustomerAccount{
-		Helper: helpers.NewCustomerAccount(sql),
+		Helper:      helpers.NewCustomerAccount(ctx.Sql),
+		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }
 
 func (c *CustomerAccount) New(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	c.Success(ctx, nil)
 }
 
 func (c *CustomerAccount) ViewAll(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	c.Success(ctx, nil)
 }
 
 func (c *CustomerAccount) View(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	c.Success(ctx, nil)
 }
 
 func (c *CustomerAccount) Delete(ctx *gin.Context) {
-	ctx.JSON(200, empty())
+	c.Success(ctx, nil)
 }

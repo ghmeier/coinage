@@ -15,7 +15,7 @@ import (
 type Billing struct {
 	router              *gin.Engine
 	roasterAccount      handlers.RoasterAccountI
-	customerAccount     handlers.CustomerAccountI
+	customer            handlers.CustomerI
 	billingSubscription handlers.BillingSubscriptionI
 }
 
@@ -42,10 +42,11 @@ func New(config *config.Root) (*Billing, error) {
 
 	b := &Billing{
 		roasterAccount:      handlers.NewRoasterAccount(ctx),
-		customerAccount:     handlers.NewCustomerAccount(ctx),
+		customer:            handlers.NewCustomer(ctx),
 		billingSubscription: handlers.NewBillingSubscription(ctx),
 	}
 	b.router = gin.Default()
+	b.router.Use(h.GetCors())
 
 	roaster := b.router.Group("/api/roaster")
 	{
@@ -57,10 +58,10 @@ func New(config *config.Root) (*Billing, error) {
 	}
 	customer := b.router.Group("/api/customer")
 	{
-		customer.POST("", b.customerAccount.New)
-		customer.GET("", b.customerAccount.ViewAll)
-		customer.GET("/:accountId", b.customerAccount.View)
-		customer.DELETE("/:accountId", b.customerAccount.Delete)
+		customer.POST("", b.customer.New)
+		customer.GET("", b.customer.ViewAll)
+		customer.GET("/:id", b.customer.View)
+		customer.DELETE("/:id", b.customer.Delete)
 	}
 	subscription := b.router.Group("/api/subscription")
 	{

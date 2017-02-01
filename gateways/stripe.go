@@ -84,7 +84,7 @@ func (s *StripeS) NewAccount(country string) (*stripe.Account, error) {
 		return nil, err
 	}
 
-	return account
+	return account, nil
 }
 
 func (s *StripeS) GetAccount(id string) (*stripe.Account, error) {
@@ -93,5 +93,5 @@ func (s *StripeS) GetAccount(id string) (*stripe.Account, error) {
 		return nil, err
 	}
 
-	return account
+	return account, nil
 }

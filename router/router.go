@@ -13,10 +13,10 @@ import (
 )
 
 type Billing struct {
-	router              *gin.Engine
-	roasterAccount      handlers.RoasterAccountI
-	customer            handlers.CustomerI
-	billingSubscription handlers.BillingSubscriptionI
+	router   *gin.Engine
+	roaster  handlers.RoasterI
+	customer handlers.CustomerI
+	plan     handlers.PlanI
 }
 
 func New(config *config.Root) (*Billing, error) {
@@ -35,40 +35,43 @@ func New(config *config.Root) (*Billing, error) {
 		fmt.Println(err.Error())
 	}
 
+	stripe := gateways.NewStripe(config.Stripe)
+
 	ctx := &h.GatewayContext{
-		Sql:   sql,
-		Stats: stats,
+		Sql:    sql,
+		Stats:  stats,
+		Stripe: stripe,
 	}
 
 	b := &Billing{
-		roasterAccount:      handlers.NewRoasterAccount(ctx),
-		customer:            handlers.NewCustomer(ctx),
-		billingSubscription: handlers.NewBillingSubscription(ctx),
+		roaster:  handlers.NewRoaster(ctx),
+		customer: handlers.NewCustomer(ctx),
+		plan:     handlers.NewPlan(ctx),
 	}
 	b.router = gin.Default()
 	b.router.Use(h.GetCors())
 
 	roaster := b.router.Group("/api/roaster")
 	{
-		roaster.POST("", b.roasterAccount.New)
-		roaster.GET("", b.roasterAccount.ViewAll)
-		roaster.GET("/:accountId", b.roasterAccount.View)
-		roaster.PUT("/:accountId", b.roasterAccount.Update)
-		roaster.DELETE("/:accountId", b.roasterAccount.Deactivate)
+		roaster.POST("", b.roaster.New)
+		roaster.GET("", b.roaster.ViewAll)
+		roaster.GET("/:id", b.roaster.View)
+		//roaster.PUT("/:id", b.roaster.Update)
+		roaster.DELETE("/:id", b.roaster.Deactivate)
+		roaster.GET("/:id/plan", b.plan.ViewAll)
+		roaster.POST("/:id/plan", b.plan.New)
+		roaster.GET("/:id/plan/:pid", b.plan.View)
+		roaster.PUT("/:id/plan/:pid", b.plan.Update)
+		roaster.DELETE("/:id/plan/:pid", b.plan.Delete)
 	}
 	customer := b.router.Group("/api/customer")
 	{
 		customer.POST("", b.customer.New)
 		customer.GET("", b.customer.ViewAll)
 		customer.GET("/:id", b.customer.View)
+		customer.POST("/:id/source", b.customer.UpdatePayment)
+		customer.POST("/:id/subscription", b.customer.Subscribe)
 		customer.DELETE("/:id", b.customer.Delete)
-	}
-	subscription := b.router.Group("/api/subscription")
-	{
-		subscription.POST("", b.billingSubscription.New)
-		subscription.GET("", b.billingSubscription.Filter)
-		subscription.GET("/:subscriptionId", b.billingSubscription.View)
-		subscription.PUT("/:subscriptionId", b.billingSubscription.Update)
 	}
 
 	return b, nil

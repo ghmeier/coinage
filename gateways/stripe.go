@@ -26,7 +26,6 @@ func NewStripe(config config.Stripe) Stripe {
 		config: config,
 		c:      client.New(config.Secret, nil),
 	}
-	stripe.Key = config.Secret
 
 	return s
 }
@@ -72,4 +71,27 @@ func (s *StripeS) AddSource(id string, token string) (*stripe.Customer, error) {
 	}
 
 	return c, nil
+}
+
+func (s *StripeS) NewAccount(country string) (*stripe.Account, error) {
+	params := &stripe.AccountParams{
+		Managed: true,
+		Country: country,
+	}
+
+	account, err := s.c.Account.New(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return account
+}
+
+func (s *StripeS) GetAccount(id string) (*stripe.Account, error) {
+	account, err := s.c.Account.GetByID(id, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return account
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/jonnykry/coinage/models"
 )
 
-type RoasterAccountI interface {
+type RoasterI interface {
 	New(ctx *gin.Context)
 	ViewAll(ctx *gin.Context)
 	View(ctx *gin.Context)
@@ -18,21 +18,21 @@ type RoasterAccountI interface {
 	Deactivate(ctx *gin.Context)
 }
 
-type RoasterAccount struct {
+type Roaster struct {
 	*handlers.BaseHandler
-	Helper *helpers.RoasterAccount
+	Helper *helpers.Roaster
 }
 
-func NewRoasterAccount(ctx *handlers.GatewayContext) RoasterAccountI {
+func NewRoaster(ctx *handlers.GatewayContext) RoasterI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.roaster_account"))
-	return &RoasterAccount{
-		Helper:      helpers.NewRoasterAccount(ctx.Sql),
+	return &Roaster{
+		Helper:      helpers.NewRoaster(ctx.Sql),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }
 
-func (c *RoasterAccount) New(ctx *gin.Context) {
-	var json models.RoasterAccount
+func (c *Roaster) New(ctx *gin.Context) {
+	var json models.RoasterRequest
 	err := ctx.BindJSON(&json)
 
 	if err != nil {
@@ -40,10 +40,7 @@ func (c *RoasterAccount) New(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: create stripe account?
-
-	account := models.NewRoasterAccount(json.UserID, json.AccountID)
-	err = c.Helper.Insert(account)
+	account, err = c.Helper.Insert(json)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return
@@ -52,7 +49,7 @@ func (c *RoasterAccount) New(ctx *gin.Context) {
 	c.Success(ctx, account)
 }
 
-func (c *RoasterAccount) ViewAll(ctx *gin.Context) {
+func (c *Roaster) ViewAll(ctx *gin.Context) {
 	offset, limit := c.GetPaging(ctx)
 
 	accounts, err := c.Helper.GetAll(offset, limit)
@@ -64,8 +61,8 @@ func (c *RoasterAccount) ViewAll(ctx *gin.Context) {
 	c.Success(ctx, accounts)
 }
 
-func (c *RoasterAccount) View(ctx *gin.Context) {
-	id := ctx.Param("accountId")
+func (c *Roaster) View(ctx *gin.Context) {
+	id := ctx.Param("id")
 
 	account, err := c.Helper.GetByID(uuid.Parse(id))
 	if err != nil {
@@ -76,26 +73,6 @@ func (c *RoasterAccount) View(ctx *gin.Context) {
 	c.Success(ctx, account)
 }
 
-func (c *RoasterAccount) Update(ctx *gin.Context) {
-	id := ctx.Param("accountId")
-
-	var json models.RoasterAccount
-	err := ctx.BindJSON(&json)
-	if err != nil {
-		c.UserError(ctx, "Error: unable to parse json", nil)
-		return
-	}
-
-	err = c.Helper.Update(&json)
-	if err != nil {
-		c.ServerError(ctx, err, json)
-		return
-	}
-
-	json.ID = uuid.Parse(id)
-	c.Success(ctx, json)
-}
-
-func (c *RoasterAccount) Deactivate(ctx *gin.Context) {
-	c.Success(ctx, nil)
+func (c *Roaster) Deactivate(ctx *gin.Context) {
+	c.Success(ctx, "NOT IMPLEMENTED")
 }

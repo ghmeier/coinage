@@ -31,62 +31,79 @@ func NewPlan(ctx *handlers.GatewayContext) PlanI {
 	}
 }
 
-func (b *Plan) New(ctx *gin.Context) {
+func (p *Plan) New(ctx *gin.Context) {
+	id := ctx.Param("id")
 	var json models.PlanRequest
 	err := ctx.BindJSON(&json)
 	if err != nil {
-		b.UserError(ctx, "Error: unable to parse json", err)
+		p.UserError(ctx, "Error: unable to parse json", err)
 		return
 	}
 
-	plan, err = b.Helper.Insert(json)
+	plan, err := p.Helper.Insert(id, &json)
 	if err != nil {
-		b.ServerError(ctx, err, json)
+		p.ServerError(ctx, err, json)
 		return
 	}
 
-	b.Success(ctx, plan)
+	p.Success(ctx, plan)
 }
 
-func (b *Plan) ViewAll(ctx *gin.Context) {
+func (p *Plan) ViewAll(ctx *gin.Context) {
 	id := ctx.Query("id")
-	offset, limit := b.GetPaging(ctx)
+	offset, limit := p.GetPaging(ctx)
 
-	plans, err := b.Helper.GetByRoaster(uuid.Parse(id), offset, limit)
+	plans, err := p.Helper.GetByRoaster(uuid.Parse(id), offset, limit)
 	if err != nil {
-		b.ServerError(ctx, err, id)
+		p.ServerError(ctx, err, id)
 		return
 	}
 
-	b.Success(ctx, plans)
+	p.Success(ctx, plans)
 }
 
-func (b *Plan) View(ctx *gin.Context) {
+func (p *Plan) View(ctx *gin.Context) {
 	id := ctx.Param("id")
-	planID := ctx.Params("pid")
+	planID := ctx.Param("pid")
 
-	plan, err := b.Helper.GetPlan(uuid.Parse(id), uuid.Parse(planID))
+	plan, err := p.Helper.Get(id, planID)
 	if err != nil {
-		b.ServerError(ctx, err, nil)
+		p.ServerError(ctx, err, nil)
 		return
 	}
 
-	b.Success(ctx, subscription)
+	p.Success(ctx, plan)
 }
 
-func (b *Plan) Update(ctx *gin.Context) {
-	var json models.PlanRequests
+func (p *Plan) Update(ctx *gin.Context) {
+	id := ctx.Param("id")
+	pid := ctx.Param("pid")
+
+	var json models.PlanRequest
 	err := ctx.BindJSON(&json)
 	if err != nil {
-		b.UserError(ctx, "Error: unable to parse json", err)
+		p.UserError(ctx, "Error: unable to parse json", err)
 		return
 	}
 
-	err = b.Helper.Update(&json)
+	plan, err := p.Helper.Update(models.NewPlan(id, pid), &json)
 	if err != nil {
-		b.ServerError(ctx, err, json)
+		p.ServerError(ctx, err, json)
 		return
 	}
 
-	b.Success(ctx, nil)
+	p.Success(ctx, plan)
+}
+
+func (p *Plan) Delete(ctx *gin.Context) {
+	id := ctx.Param("id")
+	pid := ctx.Param("pid")
+
+	err := p.Helper.Delete(id, pid)
+	if err != nil {
+		p.ServerError(ctx, err, nil)
+		return
+	}
+
+	p.Success(ctx, nil)
 }

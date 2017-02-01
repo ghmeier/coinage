@@ -3,12 +3,13 @@ package helpers
 import (
 	"github.com/pborman/uuid"
 
-	"github.com/ghmeier/bloodlines/gateways"
+	g "github.com/ghmeier/bloodlines/gateways"
+	"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/models"
 )
 
 type baseHelper struct {
-	sql gateways.SQL
+	sql g.SQL
 }
 
 type Roaster struct {
@@ -16,7 +17,7 @@ type Roaster struct {
 	Stripe gateways.Stripe
 }
 
-func NewRoaster(sql gateways.SQL, stripe gateways.Stripe) *Roaster {
+func NewRoaster(sql g.SQL, stripe gateways.Stripe) *Roaster {
 	return &Roaster{
 		baseHelper: &baseHelper{sql: sql},
 		Stripe:     stripe,
@@ -25,12 +26,12 @@ func NewRoaster(sql gateways.SQL, stripe gateways.Stripe) *Roaster {
 
 func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 	// TODO: use userID for additional info
-	stripeAccount, err := r.Stripe.NewAccount(req.Country)
+	stripe, err := r.Stripe.NewAccount(req.Country)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	roaster := models.NewRoaster(req.UserID, stripeAccount.ID)
+	roaster := models.NewRoaster(req.UserID, stripe.ID)
 	err = r.sql.Modify(
 		"INSERT INTO roaster_account (id, userId, stripeAccountId)VALUE(?, ?, ?)",
 		roaster.ID,
@@ -41,7 +42,9 @@ func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 }
 
 func (r *Roaster) GetAll(offset int, limit int) ([]*models.Roaster, error) {
-	rows, err := r.sql.Select("SELECT id, userId, stripeAccountId FROM roaster_account ORDER BY id ASC LIMIT ?,?", offset, limit)
+	rows, err := r.sql.Select("SELECT id, userId, stripeAccountId FROM roaster_account ORDER BY id ASC LIMIT ?,?",
+		offset,
+		limit)
 	if err != nil {
 		return nil, err
 	}

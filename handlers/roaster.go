@@ -26,7 +26,7 @@ type Roaster struct {
 func NewRoaster(ctx *handlers.GatewayContext) RoasterI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.roaster_account"))
 	return &Roaster{
-		Helper:      helpers.NewRoaster(ctx.Sql),
+		Helper:      helpers.NewRoaster(ctx.Sql, ctx.Stripe),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }
@@ -40,7 +40,7 @@ func (c *Roaster) New(ctx *gin.Context) {
 		return
 	}
 
-	account, err = c.Helper.Insert(json)
+	account, err := c.Helper.Insert(&json)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return
@@ -71,6 +71,10 @@ func (c *Roaster) View(ctx *gin.Context) {
 	}
 
 	c.Success(ctx, account)
+}
+
+func (c *Roaster) Update(ctx *gin.Context) {
+	c.Success(ctx, nil)
 }
 
 func (c *Roaster) Deactivate(ctx *gin.Context) {

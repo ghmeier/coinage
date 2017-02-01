@@ -2,11 +2,14 @@ package models
 
 import (
 	"database/sql"
+
+	"github.com/stripe/stripe-go"
 )
 
 type Plan struct {
-	RoasterID string `json:"roasterId"`
-	PlanID    string `json:"planId"`
+	RoasterID string       `json:"roasterId"`
+	PlanID    string       `json:"planId"`
+	Plan      *stripe.Plan `json:"plan"`
 }
 
 type PlanRequest struct {
@@ -24,8 +27,8 @@ func PlanFromSQL(rows *sql.Rows) ([]*Plan, error) {
 
 	for rows.Next() {
 		p := &Plan{}
-		rows.Scan(&p.RoasterID, &c.PlanID)
-		roasterAccount = append(plans, p)
+		rows.Scan(&p.RoasterID, &p.PlanID)
+		plans = append(plans, p)
 	}
 
 	return plans, nil

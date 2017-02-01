@@ -15,6 +15,8 @@ type CustomerI interface {
 	View(ctx *gin.Context)
 	ViewAll(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	UpdatePayment(ctx *gin.Context)
+	Subscribe(ctx *gin.Context)
 }
 
 type Customer struct {

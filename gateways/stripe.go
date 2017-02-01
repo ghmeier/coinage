@@ -7,6 +7,7 @@ import (
 	"github.com/stripe/stripe-go/client"
 
 	"github.com/ghmeier/bloodlines/config"
+	"github.com/jonnykry/coinage/models"
 )
 
 type Stripe interface {
@@ -14,6 +15,10 @@ type Stripe interface {
 	GetCustomer(id string) (*stripe.Customer, error)
 	DeleteCustomer(id string) error
 	AddSource(id string, token string) (*stripe.Customer, error)
+	NewAccount(country string) (*stripe.Account, error)
+	GetAccount(id string) (*stripe.Account, error)
+	NewPlan(id string, req *models.PlanRequest) (*stripe.Plan, error)
+	GetPlan(id string, pid string) (*stripe.Plan, error)
 }
 
 type StripeS struct {
@@ -94,4 +99,34 @@ func (s *StripeS) GetAccount(id string) (*stripe.Account, error) {
 	}
 
 	return account, nil
+}
+
+func (s *StripeS) NewPlan(id string, req *models.PlanRequest) (*stripe.Plan, error) {
+	account, err := s.GetAccount(id)
+	if err != nil {
+		return nil, err
+	}
+
+	client := client.New(account.Keys.Secret, nil)
+	plan, err := client.Plans.New(&stripe.PlanParams{})
+	if err != nil {
+		return nil, err
+	}
+
+	return plan, nil
+}
+
+func (s *StripeS) GetPlan(id string, pid string) (*stripe.Plan, error) {
+	account, err := s.GetAccount(id)
+	if err != nil {
+		return nil, err
+	}
+
+	client := client.New(account.Keys.Secret, nil)
+	plan, err := client.Plans.Get(id, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return plan, nil
 }

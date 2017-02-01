@@ -9,7 +9,7 @@ import (
 type Roaster struct {
 	ID        uuid.UUID `json:"id"`
 	UserID    uuid.UUID `json:"userId"`
-	AccountID uuid.UUID `json:"stripeAccountId"`
+	AccountID string    `json:"stripeAccountId"`
 }
 
 type RoasterRequest struct {
@@ -18,7 +18,7 @@ type RoasterRequest struct {
 	/* TODO: more info as we need it */
 }
 
-func NewRoaster(userID uuid.UUID, accountID uuid.UUID) *Roaster {
+func NewRoaster(userID uuid.UUID, accountID string) *Roaster {
 	return &Roaster{
 		ID:        uuid.NewUUID(),
 		UserID:    userID,
@@ -35,5 +35,5 @@ func RoasterFromSql(rows *sql.Rows) ([]*Roaster, error) {
 		roasters = append(roasters, c)
 	}
 
-	return roaster, nil
+	return roasters, nil
 }

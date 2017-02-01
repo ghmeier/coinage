@@ -7,8 +7,9 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 
 	"github.com/ghmeier/bloodlines/config"
-	"github.com/ghmeier/bloodlines/gateways"
+	g "github.com/ghmeier/bloodlines/gateways"
 	h "github.com/ghmeier/bloodlines/handlers"
+	"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/handlers"
 )
 
@@ -20,7 +21,7 @@ type Billing struct {
 }
 
 func New(config *config.Root) (*Billing, error) {
-	sql, err := gateways.NewSQL(config.SQL)
+	sql, err := g.NewSQL(config.SQL)
 	if err != nil {
 		fmt.Println("ERROR: could not connect to mysql.")
 		fmt.Println(err.Error())

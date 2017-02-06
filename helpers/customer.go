@@ -1,9 +1,12 @@
 package helpers
 
 import (
+	"fmt"
+
 	"github.com/pborman/uuid"
 
 	g "github.com/ghmeier/bloodlines/gateways"
+	towncenter "github.com/jakelong95/TownCenter/gateways"
 	"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/models"
 )
@@ -11,16 +14,27 @@ import (
 type Customer struct {
 	*baseHelper
 	Stripe gateways.Stripe
+	TC     towncenter.TownCenterI
 }
 
-func NewCustomer(sql g.SQL, stripe gateways.Stripe) *Customer {
+func NewCustomer(sql g.SQL, stripe gateways.Stripe, tc towncenter.TownCenterI) *Customer {
 	return &Customer{
 		baseHelper: &baseHelper{sql: sql},
 		Stripe:     stripe,
+		TC:         tc,
 	}
 }
 
 func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error) {
+	user, err := c.TC.GetUser(req.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, fmt.Errorf("ERROR: no user for id %s", req.UserID.String())
+	}
+
 	customerID, err := c.Stripe.NewCustomer(req.Token, req.UserID.String())
 	if err != nil {
 		return nil, err

@@ -1,9 +1,12 @@
 package helpers
 
 import (
+	"fmt"
+
 	"github.com/pborman/uuid"
 
 	g "github.com/ghmeier/bloodlines/gateways"
+	towncenter "github.com/jakelong95/TownCenter/gateways"
 	"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/models"
 )
@@ -15,18 +18,39 @@ type baseHelper struct {
 type Roaster struct {
 	*baseHelper
 	Stripe gateways.Stripe
+	TC     towncenter.TownCenterI
 }
 
-func NewRoaster(sql g.SQL, stripe gateways.Stripe) *Roaster {
+func NewRoaster(sql g.SQL, stripe gateways.Stripe, towncenter towncenter.TownCenterI) *Roaster {
 	return &Roaster{
 		baseHelper: &baseHelper{sql: sql},
 		Stripe:     stripe,
+		TC:         towncenter,
 	}
 }
 
 func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
-	// TODO: use userID for additional info
-	stripe, err := r.Stripe.NewAccount(req.Country)
+	user, err := r.TC.GetUser(req.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, fmt.Errorf("ERROR: no user for id %s", req.UserID.String())
+	} else if user.IsRoaster == 0 {
+		return nil, fmt.Errorf("ERROR: no roaster for user %s", req.UserID.String())
+	}
+
+	tRoaster, err := r.TC.GetRoaster(user.RoasterId)
+	if err != nil {
+		return nil, err
+	}
+
+	if r == nil {
+		return nil, fmt.Errorf("ERROR: no roaster info for id %s", user.RoasterId)
+	}
+
+	stripe, err := r.Stripe.NewAccount(req.Country, user, tRoaster)
 	if err != nil {
 		return nil, err
 	}
@@ -38,6 +62,7 @@ func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 		roaster.UserID,
 		roaster.AccountID,
 	)
+	roaster.Account = stripe
 	return roaster, err
 }
 

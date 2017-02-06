@@ -4,12 +4,14 @@ import (
 	"database/sql"
 
 	"github.com/pborman/uuid"
+	"github.com/stripe/stripe-go"
 )
 
 type Roaster struct {
-	ID        uuid.UUID `json:"id"`
-	UserID    uuid.UUID `json:"userId"`
-	AccountID string    `json:"stripeAccountId"`
+	ID        uuid.UUID       `json:"id"`
+	UserID    uuid.UUID       `json:"userId"`
+	AccountID string          `json:"stripeAccountId"`
+	Account   *stripe.Account `json:"account"`
 }
 
 type RoasterRequest struct {

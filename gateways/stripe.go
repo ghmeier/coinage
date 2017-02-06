@@ -7,6 +7,7 @@ import (
 	"github.com/stripe/stripe-go/client"
 
 	"github.com/ghmeier/bloodlines/config"
+	tmodels "github.com/jakelong95/TownCenter/models"
 	"github.com/jonnykry/coinage/models"
 )
 
@@ -15,7 +16,7 @@ type Stripe interface {
 	GetCustomer(id string) (*stripe.Customer, error)
 	DeleteCustomer(id string) error
 	AddSource(id string, token string) (*stripe.Customer, error)
-	NewAccount(country string) (*stripe.Account, error)
+	NewAccount(country string, user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	GetAccount(id string) (*stripe.Account, error)
 	NewPlan(id string, req *models.PlanRequest) (*stripe.Plan, error)
 	GetPlan(id string, pid string) (*stripe.Plan, error)
@@ -78,10 +79,34 @@ func (s *StripeS) AddSource(id string, token string) (*stripe.Customer, error) {
 	return c, nil
 }
 
-func (s *StripeS) NewAccount(country string) (*stripe.Account, error) {
+func (s *StripeS) NewAccount(country string, user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error) {
 	params := &stripe.AccountParams{
-		Managed: true,
-		Country: country,
+		Managed:      true,
+		Country:      country,
+		Email:        roaster.Email,
+		BusinessName: roaster.Name,
+		LegalEntity: &stripe.LegalEntity{
+			Address: stripe.Address{
+				City:    roaster.AddressCity,
+				Country: roaster.AddressCountry,
+				Line1:   roaster.AddressLine1,
+				Line2:   roaster.AddressLine2,
+				Zip:     roaster.AddressZip,
+				State:   roaster.AddressState,
+			},
+			PersonalAddress: stripe.Address{
+				City:    user.AddressCity,
+				Country: user.AddressCountry,
+				Line1:   user.AddressLine1,
+				Line2:   user.AddressLine2,
+				Zip:     user.AddressZip,
+				State:   user.AddressState,
+			},
+			First:       user.FirstName,
+			Last:        user.LastName,
+			PhoneNumber: roaster.Phone,
+			Type:        "country",
+		},
 	}
 
 	account, err := s.c.Account.New(params)

@@ -26,7 +26,7 @@ type Roaster struct {
 func NewRoaster(ctx *handlers.GatewayContext) RoasterI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.roaster_account"))
 	return &Roaster{
-		Helper:      helpers.NewRoaster(ctx.Sql, ctx.Stripe),
+		Helper:      helpers.NewRoaster(ctx.Sql, ctx.Stripe, ctx.TownCenter),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }

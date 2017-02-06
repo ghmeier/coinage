@@ -27,20 +27,26 @@ type Customer struct {
 func NewCustomer(ctx *handlers.GatewayContext) CustomerI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.customer"))
 	return &Customer{
-		Helper:      helpers.NewCustomer(ctx.Sql, ctx.Stripe),
+		Helper:      helpers.NewCustomer(ctx.Sql, ctx.Stripe, ctx.TownCenter),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }
 
 func (c *Customer) New(ctx *gin.Context) {
-	var json models.Customer
+	var json models.CustomerRequest
 	err := ctx.BindJSON(json)
 	if err != nil {
 		c.UserError(ctx, "ERROR: unable to parse body", err)
 		return
 	}
 
-	c.Success(ctx, nil)
+	customer, err := c.Helper.Insert(&json)
+	if err != nil {
+		c.ServerError(ctx, err, json)
+		return
+	}
+
+	c.Success(ctx, customer)
 }
 
 func (c *Customer) ViewAll(ctx *gin.Context) {

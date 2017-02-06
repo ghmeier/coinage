@@ -9,6 +9,7 @@ import (
 	"github.com/ghmeier/bloodlines/config"
 	g "github.com/ghmeier/bloodlines/gateways"
 	h "github.com/ghmeier/bloodlines/handlers"
+	towncenter "github.com/jakelong95/TownCenter/gateways"
 	"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/handlers"
 )
@@ -37,11 +38,13 @@ func New(config *config.Root) (*Billing, error) {
 	}
 
 	stripe := gateways.NewStripe(config.Stripe)
+	towncenter := towncenter.NewTownCenter(config.TownCenter)
 
 	ctx := &h.GatewayContext{
-		Sql:    sql,
-		Stats:  stats,
-		Stripe: stripe,
+		Sql:        sql,
+		Stats:      stats,
+		Stripe:     stripe,
+		TownCenter: towncenter,
 	}
 
 	b := &Billing{

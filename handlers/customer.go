@@ -84,9 +84,9 @@ func (c *Customer) UpdatePayment(ctx *gin.Context) {
 		return
 	}
 
-	err = c.Helper.AddSource(uuid.Parse(id), token)
+	err = c.Helper.AddSource(uuid.Parse(id), json.Token)
 	if err != nil {
-		c.ServerError(ctx, err, &gin.H{id: id, token: token})
+		c.ServerError(ctx, err, &gin.H{"id": id, "token": json.Token})
 		return
 	}
 

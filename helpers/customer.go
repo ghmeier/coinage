@@ -6,20 +6,23 @@ import (
 	"github.com/pborman/uuid"
 
 	g "github.com/ghmeier/bloodlines/gateways"
-	towncenter "github.com/jakelong95/TownCenter/gateways"
+	t "github.com/jakelong95/TownCenter/gateways"
 	"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/models"
+	c "github.com/yuderekyu/covenant/gateways"
 )
 
 type Customer struct {
 	*baseHelper
-	Stripe gateways.Stripe
-	TC     towncenter.TownCenterI
+	Stripe   gateways.Stripe
+	Covenant c.Covenant
+	TC       t.TownCenterI
 }
 
-func NewCustomer(sql g.SQL, stripe gateways.Stripe, tc towncenter.TownCenterI) *Customer {
+func NewCustomer(sql g.SQL, stripe gateways.Stripe, tc t.TownCenterI, cov c.Covenant) *Customer {
 	return &Customer{
 		baseHelper: &baseHelper{sql: sql},
+		Covenant:   cov,
 		Stripe:     stripe,
 		TC:         tc,
 	}

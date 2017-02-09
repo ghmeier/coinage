@@ -29,7 +29,7 @@ type Customer struct {
 func NewCustomer(ctx *handlers.GatewayContext) CustomerI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.customer"))
 	return &Customer{
-		Helper:      helpers.NewCustomer(ctx.Sql, ctx.Stripe, ctx.TownCenter),
+		Helper:      helpers.NewCustomer(ctx.Sql, ctx.Stripe, ctx.TownCenter, ctx.Covenant),
 		PlanHelper:  helpers.NewPlan(ctx.Sql, ctx.Stripe),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}

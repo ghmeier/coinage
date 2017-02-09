@@ -65,7 +65,7 @@ func New(config *config.Root) (*Billing, error) {
 		roaster.GET("/:id/plan", b.plan.ViewAll)
 		roaster.POST("/:id/plan", b.plan.New)
 		roaster.GET("/:id/plan/:itemId", b.plan.View)
-		roaster.PUT("/:id/plan/:itemId", b.plan.Update)
+		//roaster.PUT("/:id/plan/:itemId", b.plan.Update)
 		roaster.DELETE("/:id/plan/:itemId", b.plan.Delete)
 	}
 	customer := b.router.Group("/api/customer")

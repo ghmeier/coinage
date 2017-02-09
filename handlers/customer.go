@@ -17,6 +17,7 @@ type CustomerI interface {
 	Delete(ctx *gin.Context)
 	UpdatePayment(ctx *gin.Context)
 	Subscribe(ctx *gin.Context)
+	Unsubscribe(ctx *gin.Context)
 }
 
 type Customer struct {
@@ -69,15 +70,21 @@ func (c *Customer) Subscribe(ctx *gin.Context) {
 	c.Success(ctx, nil)
 }
 
+func (c *Customer) Unsubscribe(ctx *gin.Context) {
+	c.Success(ctx, nil)
+}
+
 func (c *Customer) UpdatePayment(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	token, ok := ctx.GetQuery("token")
-	if !ok {
-		c.UserError(ctx, "ERROR: token is a required parameter", nil)
+	var json models.CustomerRequest
+	err := ctx.BindJSON(json)
+	if err != nil {
+		c.UserError(ctx, "ERROR: token is a required parameter", err)
+		return
 	}
 
-	err := c.Helper.AddSource(uuid.Parse(id), token)
+	err = c.Helper.AddSource(uuid.Parse(id), token)
 	if err != nil {
 		c.ServerError(ctx, err, &gin.H{id: id, token: token})
 		return

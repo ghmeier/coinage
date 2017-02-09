@@ -53,7 +53,7 @@ func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error)
 }
 
 func (c *Customer) View(id uuid.UUID) (*models.Customer, error) {
-	rows, err := c.sql.Select("SELECT id, userId, stripeCustomerId FROM customer_account WHERE id=?", id.String())
+	rows, err := c.sql.Select("SELECT id, userId, stripeCustomerId FROM customer_account WHERE userId=?", id.String())
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +84,6 @@ func (c *Customer) AddSource(id uuid.UUID, token string) error {
 }
 
 func (c *Customer) Delete(id uuid.UUID) error {
-	err := c.sql.Modify("DELETE FROM customer_account WHERE id=?", id)
+	err := c.sql.Modify("DELETE FROM customer_account WHERE userId=?", id)
 	return err
 }

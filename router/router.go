@@ -75,6 +75,7 @@ func New(config *config.Root) (*Billing, error) {
 		customer.GET("/:id", b.customer.View)
 		customer.POST("/:id/source", b.customer.UpdatePayment)
 		customer.POST("/:id/subscription", b.customer.Subscribe)
+		customer.DELETE("/:id/subscription/:pid", b.customer.Unsubscribe)
 		customer.DELETE("/:id", b.customer.Delete)
 	}
 

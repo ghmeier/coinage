@@ -1,0 +1,112 @@
+{
+	"ImportPath": "github.com/jonnykry/coinage",
+	"GoVersion": "go1.6.3",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/ghmeier/bloodlines/config",
+			"Rev": "5538a2119d708fc19d1f9789f3b2765cd157cb3a"
+		},
+		{
+			"ImportPath": "github.com/ghmeier/bloodlines/gateways",
+			"Rev": "5538a2119d708fc19d1f9789f3b2765cd157cb3a"
+		},
+		{
+			"ImportPath": "github.com/ghmeier/bloodlines/handlers",
+			"Rev": "5538a2119d708fc19d1f9789f3b2765cd157cb3a"
+		},
+		{
+			"ImportPath": "github.com/ghmeier/bloodlines/helpers",
+			"Rev": "5538a2119d708fc19d1f9789f3b2765cd157cb3a"
+		},
+		{
+			"ImportPath": "github.com/ghmeier/bloodlines/models",
+			"Rev": "5538a2119d708fc19d1f9789f3b2765cd157cb3a"
+		},
+		{
+			"ImportPath": "github.com/gin-gonic/gin/binding",
+			"Comment": "v1.0-2-g3900df0",
+			"Rev": "3900df04d2a88e22beaf6a2970c63648b9e1b0e1"
+		},
+		{
+			"ImportPath": "github.com/gin-gonic/gin/render",
+			"Comment": "v1.0-2-g3900df0",
+			"Rev": "3900df04d2a88e22beaf6a2970c63648b9e1b0e1"
+		},
+		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.2-208-g2a6c607",
+			"Rev": "2a6c6079c7eff49a7e9d641e109d922f124a3e4c"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "98fa357170587e470c5f27d3c3ea0947b71eb455"
+		},
+		{
+			"ImportPath": "github.com/jakelong95/TownCenter/gateways",
+			"Rev": "c53f5d6e31b1c6a772d4bd3e35891cb40256c96e"
+		},
+		{
+			"ImportPath": "github.com/jakelong95/TownCenter/models",
+			"Rev": "c53f5d6e31b1c6a772d4bd3e35891cb40256c96e"
+		},
+		{
+			"ImportPath": "github.com/manucorporat/sse",
+			"Rev": "ee05b128a739a0fb76c7ebd3ae4810c1de808d6d"
+		},
+		{
+			"ImportPath": "github.com/pborman/uuid",
+			"Comment": "v1.0-17-g3d4f2ba",
+			"Rev": "3d4f2ba23642d3cfd06bd4b54cf03d99d95c0f1b"
+		},
+		{
+			"ImportPath": "github.com/sendgrid/rest",
+			"Comment": "v2.3.1",
+			"Rev": "3ec51b4f1754e13e92409355851a0a82e9a06461"
+		},
+		{
+			"ImportPath": "github.com/sendgrid/sendgrid-go",
+			"Comment": "v3.3.1-1-gd087004",
+			"Rev": "d087004b4d47c2a378ade9eb3957571114b91493"
+		},
+		{
+			"ImportPath": "github.com/streadway/amqp",
+			"Rev": "4da4cfa085c174b489ec35cf1e29ffb147d45298"
+		},
+		{
+			"ImportPath": "github.com/stripe/stripe-go",
+			"Comment": "v19.2.0",
+			"Rev": "3f2707ab5115e7c54c70a77aabcb386d6f405810"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "65dfc08770ce66f74becfdff5f8ab01caef4e946"
+		},
+		{
+			"ImportPath": "gopkg.in/alexcesaro/statsd.v2",
+			"Comment": "v2.0.0",
+			"Rev": "7fea3f0d2fab1ad973e641e51dba45443a311a90"
+		},
+		{
+			"ImportPath": "gopkg.in/gin-contrib/cors.v1",
+			"Comment": "v1.1",
+			"Rev": "fb918bcd825b9e20f0c3c365981baf9454029b6c"
+		},
+		{
+			"ImportPath": "gopkg.in/gin-gonic/gin.v1",
+			"Comment": "v1.0",
+			"Rev": "2dae550eb5392006a4582ce9c90016a9b5a74e8b"
+		},
+		{
+			"ImportPath": "gopkg.in/go-playground/validator.v8",
+			"Comment": "v8.18.1",
+			"Rev": "5f57d2222ad794d0dffb07e664ea05e2ee07d60c"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "a5b47d31c556af34a302ce5d659e6fea44d90de0"
+		}
+	]
+}

@@ -12,6 +12,7 @@ before_install:
 install:
   - godep restore
 script:
-  - $HOME/gopath/bin/goveralls -service=travis-ci
+  - go build
+  #- $HOME/gopath/bin/goveralls -service=travis-ci
 notifications:
   slack: mostlygifs:kMPSRhVA86SMdct6dKj8akte

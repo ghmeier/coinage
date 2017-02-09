@@ -6,7 +6,7 @@ A go service for handling Expresso billing
 
 ## Quick Start
 ```bash
-$ docker run ghmeier/coinage:latest
+$ docker run jonnykry/coinage:latest
 ```
 
 ## Setup

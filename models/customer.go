@@ -24,6 +24,12 @@ type CustomerRequest struct {
 	Token  string    `json:"token" binding:"required"`
 }
 
+type SubscribeRequest struct {
+	RoasterID uuid.UUID `json:"roasterId" binding:"required"`
+	ItemID    uuid.UUID `json:"itemId" binding:"required"`
+	Frequency Frequency `json:"frequency" binding:"required"`
+}
+
 func NewCustomer(userID uuid.UUID, id string) *Customer {
 	return &Customer{
 		ID:         uuid.NewUUID(),

@@ -9,6 +9,7 @@ import (
 	"github.com/ghmeier/bloodlines/config"
 	tmodels "github.com/jakelong95/TownCenter/models"
 	"github.com/jonnykry/coinage/models"
+	item "github.com/lcollin/warehouse/models"
 )
 
 type Stripe interface {
@@ -18,8 +19,9 @@ type Stripe interface {
 	AddSource(id string, token string) (*stripe.Customer, error)
 	NewAccount(country string, user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	GetAccount(id string) (*stripe.Account, error)
-	NewPlan(id string, req *models.PlanRequest) (*stripe.Plan, error)
+	NewPlan(id string, item *item.Item, freq string) (*stripe.Plan, error)
 	GetPlan(id string, pid string) (*stripe.Plan, error)
+	Subscribe(id string, planID string) (*stripe.Sub, error)
 }
 
 type StripeS struct {
@@ -126,14 +128,28 @@ func (s *StripeS) GetAccount(id string) (*stripe.Account, error) {
 	return account, nil
 }
 
-func (s *StripeS) NewPlan(id string, req *models.PlanRequest) (*stripe.Plan, error) {
+func (s *StripeS) NewPlan(id string, item *item.Item, freq string) (*stripe.Plan, error) {
+	interval, ok := models.ToFrequency(string(freq))
+	if !ok {
+		return nil, fmt.Errorf("ERROR: no frequency for interval %s", freq)
+	}
+
 	account, err := s.GetAccount(id)
 	if err != nil {
 		return nil, err
 	}
 
 	client := client.New(account.Keys.Secret, nil)
-	plan, err := client.Plans.New(&stripe.PlanParams{})
+	plan, err := client.Plans.New(&stripe.PlanParams{
+		ID:            item.ID.String(),
+		Amount:        uint64(item.ConsumerPrice * 100),
+		Currency:      "usd",
+		Interval:      "week",
+		IntervalCount: uint64(interval),
+		Name:          item.Name,
+		Statement:     fmt.Sprintf("Expresso %s", item.Name),
+	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -154,4 +170,13 @@ func (s *StripeS) GetPlan(id string, pid string) (*stripe.Plan, error) {
 	}
 
 	return plan, nil
+}
+
+func (s *StripeS) Subscribe(id string, planID string) (*stripe.Sub, error) {
+	sub, err := s.c.Subs.New(&stripe.SubParams{Customer: id, Plan: planID})
+	if err != nil {
+		return nil, err
+	}
+
+	return sub, nil
 }

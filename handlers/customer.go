@@ -22,13 +22,15 @@ type CustomerI interface {
 
 type Customer struct {
 	*handlers.BaseHandler
-	Helper *helpers.Customer
+	Helper     *helpers.Customer
+	PlanHelper *helpers.Plan
 }
 
 func NewCustomer(ctx *handlers.GatewayContext) CustomerI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.customer"))
 	return &Customer{
 		Helper:      helpers.NewCustomer(ctx.Sql, ctx.Stripe, ctx.TownCenter),
+		PlanHelper:  helpers.NewPlan(ctx.Sql, ctx.Stripe),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }
@@ -67,6 +69,26 @@ func (c *Customer) View(ctx *gin.Context) {
 }
 
 func (c *Customer) Subscribe(ctx *gin.Context) {
+	id := ctx.Param("id")
+	var json models.SubscribeRequest
+	err := ctx.BindJSON(json)
+	if err != nil {
+		c.UserError(ctx, "ERROR: invalid subscribe request", err)
+		return
+	}
+
+	plan, err := c.PlanHelper.Get(json.RoasterID, json.ItemID)
+	if err != nil {
+		c.ServerError(ctx, err, json)
+		return
+	}
+
+	err = c.Helper.Subscribe(uuid.Parse(id), plan, json.Frequency)
+	if err != nil {
+		c.ServerError(ctx, err, json)
+		return
+	}
+
 	c.Success(ctx, nil)
 }
 

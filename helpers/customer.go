@@ -73,6 +73,27 @@ func (c *Customer) View(id uuid.UUID) (*models.Customer, error) {
 	return customer, nil
 }
 
+func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Frequency) error {
+	customer, err := c.View(id)
+	if err != nil {
+		return err
+	}
+
+	interval, ok := models.ToFrequency(string(freq))
+	if !ok {
+		return fmt.Errorf("ERROR: invalid frequency %s", freq)
+	}
+
+	stripe := plan.PlanIDs[interval]
+
+	_, err = c.Stripe.Subscribe(customer.CustomerID, stripe)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (c *Customer) AddSource(id uuid.UUID, token string) error {
 	customer, err := c.View(id)
 	if err != nil {

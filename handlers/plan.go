@@ -20,14 +20,16 @@ type PlanI interface {
 
 type Plan struct {
 	*handlers.BaseHandler
-	Helper *helpers.Plan
+	Helper        *helpers.Plan
+	RoasterHelper *helpers.Roaster
 }
 
 func NewPlan(ctx *handlers.GatewayContext) PlanI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.plan"))
 	return &Plan{
-		Helper:      helpers.NewPlan(ctx.Sql, ctx.Stripe),
-		BaseHandler: &handlers.BaseHandler{Stats: stats},
+		Helper:        helpers.NewPlan(ctx.Sql, ctx.Stripe),
+		RoasterHelper: helpers.NewRoaster(ctx.Sql, ctx.Stripe, ctx.TownCenter),
+		BaseHandler:   &handlers.BaseHandler{Stats: stats},
 	}
 }
 
@@ -40,7 +42,13 @@ func (p *Plan) New(ctx *gin.Context) {
 		return
 	}
 
-	plan, err := p.Helper.Insert(id, &json)
+	roaster, err := p.RoasterHelper.GetByID(uuid.Parse(id))
+	if err != nil {
+		p.ServerError(ctx, err, json)
+		return
+	}
+
+	plan, err := p.Helper.Insert(roaster.ID, roaster.AccountID, &json)
 	if err != nil {
 		p.ServerError(ctx, err, json)
 		return
@@ -64,9 +72,9 @@ func (p *Plan) ViewAll(ctx *gin.Context) {
 
 func (p *Plan) View(ctx *gin.Context) {
 	id := ctx.Param("id")
-	planID := ctx.Param("pid")
+	itemID := ctx.Param("itemId")
 
-	plan, err := p.Helper.Get(id, planID)
+	plan, err := p.Helper.Get(uuid.Parse(id), uuid.Parse(itemID))
 	if err != nil {
 		p.ServerError(ctx, err, nil)
 		return
@@ -77,7 +85,7 @@ func (p *Plan) View(ctx *gin.Context) {
 
 func (p *Plan) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
-	pid := ctx.Param("pid")
+	itemID := ctx.Param("itemId")
 
 	var json models.PlanRequest
 	err := ctx.BindJSON(&json)
@@ -86,7 +94,9 @@ func (p *Plan) Update(ctx *gin.Context) {
 		return
 	}
 
-	plan, err := p.Helper.Update(models.NewPlan(id, pid), &json)
+	//TODO: get item from db
+
+	plan, err := p.Helper.Update(id, uuid.UUID(itemID))
 	if err != nil {
 		p.ServerError(ctx, err, json)
 		return

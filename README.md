@@ -1,4 +1,7 @@
 # coinage
+[![Build Status](https://travis-ci.org/jonnykry/coinage.svg?branch=master)](https://travis-ci.org/jonnykry/coinage)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jonnykry/coinage)](https://goreportcard.com/report/github.com/jonnykry/coinage)
+
 A go service for handling Expresso billing
 
 ## Quick Start

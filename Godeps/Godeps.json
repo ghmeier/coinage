@@ -53,6 +53,10 @@
 			"Rev": "9e44a352b1cec4203b06fe92c33199b93ac3bec2"
 		},
 		{
+			"ImportPath": "github.com/lcollin/warehouse/models",
+			"Rev": "0ced5f55e96ba283289a49503f68efc6d14d3b60"
+		},
+		{
 			"ImportPath": "github.com/manucorporat/sse",
 			"Rev": "ee05b128a739a0fb76c7ebd3ae4810c1de808d6d"
 		},

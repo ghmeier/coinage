@@ -12,6 +12,7 @@ import (
 	towncenter "github.com/jakelong95/TownCenter/gateways"
 	"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/handlers"
+	covenant "github.com/yuderekyu/covenant/gateways"
 )
 
 type Billing struct {
@@ -39,12 +40,14 @@ func New(config *config.Root) (*Billing, error) {
 
 	stripe := gateways.NewStripe(config.Stripe)
 	towncenter := towncenter.NewTownCenter(config.TownCenter)
+	covenant := covenant.NewCovenant(config.Covenant)
 
 	ctx := &h.GatewayContext{
 		Sql:        sql,
 		Stats:      stats,
 		Stripe:     stripe,
 		TownCenter: towncenter,
+		Covenant:   covenant,
 	}
 
 	b := &Billing{

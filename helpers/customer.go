@@ -10,6 +10,7 @@ import (
 	"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/models"
 	c "github.com/yuderekyu/covenant/gateways"
+	//sub "github.com/yuderekyu/covenant/models"
 )
 
 type Customer struct {
@@ -76,6 +77,8 @@ func (c *Customer) View(id uuid.UUID) (*models.Customer, error) {
 	return customer, nil
 }
 
+// userID uuid.UUID, createdAt string, startAt string, shopID uuid.UUID, ozInBag float64,
+// beanName string, roastName string, price float64
 func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Frequency) error {
 	customer, err := c.View(id)
 	if err != nil {
@@ -93,6 +96,9 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 	if err != nil {
 		return err
 	}
+
+	//subscription := sub.NewSubscription(id, time.Now(), time.Now(), plan.RoasterID)
+	//c.Covenant.NewSubscription()
 
 	return err
 }

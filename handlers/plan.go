@@ -6,8 +6,8 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 
 	"github.com/ghmeier/bloodlines/handlers"
-	"github.com/jonnykry/coinage/helpers"
-	"github.com/jonnykry/coinage/models"
+	"github.com/ghmeier/coinage/helpers"
+	"github.com/ghmeier/coinage/models"
 )
 
 type PlanI interface {
@@ -20,16 +20,16 @@ type PlanI interface {
 
 type Plan struct {
 	*handlers.BaseHandler
-	Helper        *helpers.Plan
-	RoasterHelper *helpers.Roaster
+	Plan    *helpers.Plan
+	Roaster *helpers.Roaster
 }
 
 func NewPlan(ctx *handlers.GatewayContext) PlanI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.plan"))
 	return &Plan{
-		Helper:        helpers.NewPlan(ctx.Sql, ctx.Stripe),
-		RoasterHelper: helpers.NewRoaster(ctx.Sql, ctx.Stripe, ctx.TownCenter),
-		BaseHandler:   &handlers.BaseHandler{Stats: stats},
+		Plan:        helpers.NewPlan(ctx.Sql, ctx.Stripe),
+		Roaster:     helpers.NewRoaster(ctx.Sql, ctx.Stripe, ctx.TownCenter),
+		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }
 
@@ -42,13 +42,13 @@ func (p *Plan) New(ctx *gin.Context) {
 		return
 	}
 
-	roaster, err := p.RoasterHelper.GetByID(uuid.Parse(id))
+	roaster, err := p.Roaster.GetByID(uuid.Parse(id))
 	if err != nil {
 		p.ServerError(ctx, err, json)
 		return
 	}
 
-	plan, err := p.Helper.Insert(roaster.ID, roaster.AccountID, &json)
+	plan, err := p.Plan.Insert(roaster.ID, roaster.AccountID, &json)
 	if err != nil {
 		p.ServerError(ctx, err, json)
 		return
@@ -61,7 +61,13 @@ func (p *Plan) ViewAll(ctx *gin.Context) {
 	id := ctx.Query("id")
 	offset, limit := p.GetPaging(ctx)
 
-	plans, err := p.Helper.GetByRoaster(uuid.Parse(id), offset, limit)
+	roaster, err := p.Roaster.GetByUserID(uuid.Parse(id))
+	if err != nil {
+		p.ServerError(ctx, err, id)
+		return
+	}
+
+	plans, err := p.Plan.GetByRoaster(roaster, offset, limit)
 	if err != nil {
 		p.ServerError(ctx, err, id)
 		return
@@ -74,7 +80,13 @@ func (p *Plan) View(ctx *gin.Context) {
 	id := ctx.Param("id")
 	itemID := ctx.Param("itemId")
 
-	plan, err := p.Helper.Get(uuid.Parse(id), uuid.Parse(itemID))
+	roaster, err := p.Roaster.GetByUserID(uuid.Parse(id))
+	if err != nil {
+		p.ServerError(ctx, err, id)
+		return
+	}
+
+	plan, err := p.Plan.Get(roaster, uuid.Parse(itemID))
 	if err != nil {
 		p.ServerError(ctx, err, nil)
 		return
@@ -96,7 +108,7 @@ func (p *Plan) Update(ctx *gin.Context) {
 
 	//TODO: get item from db
 
-	plan, err := p.Helper.Update(id, uuid.UUID(itemID))
+	plan, err := p.Plan.Update(id, uuid.UUID(itemID))
 	if err != nil {
 		p.ServerError(ctx, err, json)
 		return
@@ -109,7 +121,7 @@ func (p *Plan) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	pid := ctx.Param("pid")
 
-	err := p.Helper.Delete(id, pid)
+	err := p.Plan.Delete(id, pid)
 	if err != nil {
 		p.ServerError(ctx, err, nil)
 		return

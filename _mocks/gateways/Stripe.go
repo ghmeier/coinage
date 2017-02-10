@@ -1,6 +1,6 @@
 package mocks
 
-import gateways "github.com/jonnykry/coinage/gateways"
+import gateways "github.com/ghmeier/coinage/gateways"
 import mock "github.com/stretchr/testify/mock"
 import models "github.com/jakelong95/TownCenter/models"
 import stripe "github.com/stripe/stripe-go"

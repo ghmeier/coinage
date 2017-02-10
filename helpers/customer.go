@@ -6,9 +6,9 @@ import (
 	"github.com/pborman/uuid"
 
 	g "github.com/ghmeier/bloodlines/gateways"
+	"github.com/ghmeier/coinage/gateways"
+	"github.com/ghmeier/coinage/models"
 	t "github.com/jakelong95/TownCenter/gateways"
-	"github.com/jonnykry/coinage/gateways"
-	"github.com/jonnykry/coinage/models"
 	c "github.com/yuderekyu/covenant/gateways"
 	//sub "github.com/yuderekyu/covenant/models"
 )

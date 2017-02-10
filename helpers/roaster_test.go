@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	bgateways "github.com/ghmeier/bloodlines/gateways"
+	mocks "github.com/ghmeier/coinage/_mocks/gateways"
+	"github.com/ghmeier/coinage/models"
 	tmocks "github.com/jakelong95/TownCenter/_mocks"
 	tmodels "github.com/jakelong95/TownCenter/models"
-	mocks "github.com/jonnykry/coinage/_mocks/gateways"
-	"github.com/jonnykry/coinage/models"
 	cmocks "github.com/yuderekyu/covenant/_mocks/gateways"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -129,15 +129,18 @@ func TestGetByUserIDRoasterSuccess(t *testing.T) {
 	assert := assert.New(t)
 	mocks, roaster := getMockRHelper()
 
-	id := uuid.NewUUID()
-	r := getMockRoasterAccount(id)
+	user := getMockRUser()
+	tRoaster := getMockRoaster(user.RoasterId)
+	r := getMockRoasterAccount(user.RoasterId)
 
 	mocks.stripe.On("GetAccount", r.AccountID).Return(&stripe.Account{ID: "stripeID"}, nil)
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeAccountId FROM roaster_account").
-		WithArgs(id.String()).
+	mocks.tc.On("GetUser", user.ID).Return(user, nil)
+	mocks.tc.On("GetRoaster", tRoaster.ID).Return(tRoaster, nil)
+	mocks.sql.ExpectQuery("SELECT id, stripeAccountId FROM roaster_account").
+		WithArgs(user.RoasterId.String()).
 		WillReturnRows(getRoasterRows().
-			AddRow(r.ID.String(), r.UserID.String(), r.AccountID))
-	c, err := roaster.GetByUserID(id)
+			AddRow(user.RoasterId.String(), r.AccountID))
+	c, err := roaster.GetByUserID(user.ID)
 
 	assert.NoError(err)
 	assert.NotNil(c)
@@ -147,12 +150,15 @@ func TestGetByUserIDRoasterFail(t *testing.T) {
 	assert := assert.New(t)
 	mocks, roaster := getMockRHelper()
 
-	id := uuid.NewUUID()
+	user := getMockRUser()
+	tRoaster := getMockRoaster(user.RoasterId)
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeAccountId FROM roaster_account").
-		WithArgs(id.String()).
+	mocks.tc.On("GetUser", user.ID).Return(user, nil)
+	mocks.tc.On("GetRoaster", tRoaster.ID).Return(tRoaster, nil)
+	mocks.sql.ExpectQuery("SELECT id, stripeAccountId FROM roaster_account").
+		WithArgs(user.RoasterId.String()).
 		WillReturnError(fmt.Errorf("some error"))
-	c, err := roaster.GetByUserID(id)
+	c, err := roaster.GetByUserID(user.ID)
 
 	assert.Error(err)
 	assert.Nil(c)
@@ -166,10 +172,10 @@ func TestGetIDRoasterAccountFail(t *testing.T) {
 	r := getMockRoasterAccount(id)
 
 	mocks.stripe.On("GetAccount", r.AccountID).Return(nil, fmt.Errorf("some error"))
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeAccountId FROM roaster_account").
+	mocks.sql.ExpectQuery("SELECT id, stripeAccountId FROM roaster_account").
 		WithArgs(id.String()).
 		WillReturnRows(getRoasterRows().
-			AddRow(r.ID.String(), r.UserID.String(), r.AccountID))
+			AddRow(r.ID.String(), r.AccountID))
 	c, err := roaster.GetByID(id)
 
 	assert.Error(err)
@@ -182,7 +188,7 @@ func TestGetIDRoasterSQLFail(t *testing.T) {
 
 	id := uuid.NewUUID()
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeAccountId FROM roaster_account").
+	mocks.sql.ExpectQuery("SELECT id, stripeAccountId FROM roaster_account").
 		WithArgs(id.String()).
 		WillReturnError(fmt.Errorf("some error"))
 	c, err := roaster.GetByID(id)
@@ -204,8 +210,7 @@ func getMockRHelper() (*mockContext, *Roaster) {
 
 func getMockRoasterAccount(id uuid.UUID) *models.Roaster {
 	return &models.Roaster{
-		ID:        uuid.NewUUID(),
-		UserID:    id,
+		ID:        id,
 		AccountID: "accountID",
 	}
 }
@@ -242,5 +247,5 @@ func getMockRoaster(id uuid.UUID) *tmodels.Roaster {
 }
 
 func getRoasterRows() sqlmock.Rows {
-	return sqlmock.NewRows([]string{"id", "userId", "stripeAccountId"})
+	return sqlmock.NewRows([]string{"id", "stripeAccountId"})
 }

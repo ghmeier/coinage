@@ -6,8 +6,8 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 
 	"github.com/ghmeier/bloodlines/handlers"
-	"github.com/jonnykry/coinage/helpers"
-	"github.com/jonnykry/coinage/models"
+	"github.com/ghmeier/coinage/helpers"
+	"github.com/ghmeier/coinage/models"
 )
 
 type RoasterI interface {

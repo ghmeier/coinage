@@ -7,8 +7,8 @@ import (
 	"github.com/stripe/stripe-go/client"
 
 	"github.com/ghmeier/bloodlines/config"
+	"github.com/ghmeier/coinage/models"
 	tmodels "github.com/jakelong95/TownCenter/models"
-	"github.com/jonnykry/coinage/models"
 	item "github.com/lcollin/warehouse/models"
 )
 

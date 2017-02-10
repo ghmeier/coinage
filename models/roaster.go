@@ -8,8 +8,8 @@ import (
 )
 
 type Roaster struct {
+	//ID is the roaster ID in towncenter
 	ID        uuid.UUID       `json:"id"`
-	UserID    uuid.UUID       `json:"userId"`
 	AccountID string          `json:"stripeAccountId"`
 	Account   *stripe.Account `json:"account"`
 }
@@ -20,10 +20,9 @@ type RoasterRequest struct {
 	/* TODO: more info as we need it */
 }
 
-func NewRoaster(userID uuid.UUID, accountID string) *Roaster {
+func NewRoaster(id uuid.UUID, accountID string) *Roaster {
 	return &Roaster{
 		ID:        uuid.NewUUID(),
-		UserID:    userID,
 		AccountID: accountID,
 	}
 }
@@ -33,7 +32,7 @@ func RoasterFromSql(rows *sql.Rows) ([]*Roaster, error) {
 
 	for rows.Next() {
 		c := &Roaster{}
-		rows.Scan(&c.ID, &c.UserID, &c.AccountID)
+		rows.Scan(&c.ID, &c.AccountID)
 		roasters = append(roasters, c)
 	}
 

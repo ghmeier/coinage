@@ -6,8 +6,8 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 
 	"github.com/ghmeier/bloodlines/handlers"
-	"github.com/jonnykry/coinage/helpers"
-	"github.com/jonnykry/coinage/models"
+	"github.com/ghmeier/coinage/helpers"
+	"github.com/ghmeier/coinage/models"
 )
 
 type CustomerI interface {
@@ -22,15 +22,17 @@ type CustomerI interface {
 
 type Customer struct {
 	*handlers.BaseHandler
-	Helper     *helpers.Customer
-	PlanHelper *helpers.Plan
+	Customer *helpers.Customer
+	Plan     *helpers.Plan
+	Roaster  *helpers.Roaster
 }
 
 func NewCustomer(ctx *handlers.GatewayContext) CustomerI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.customer"))
 	return &Customer{
-		Helper:      helpers.NewCustomer(ctx.Sql, ctx.Stripe, ctx.TownCenter, ctx.Covenant),
-		PlanHelper:  helpers.NewPlan(ctx.Sql, ctx.Stripe),
+		Customer:    helpers.NewCustomer(ctx.Sql, ctx.Stripe, ctx.TownCenter, ctx.Covenant),
+		Plan:        helpers.NewPlan(ctx.Sql, ctx.Stripe),
+		Roaster:     helpers.NewRoaster(ctx.Sql, ctx.Stripe, ctx.TownCenter),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }
@@ -43,7 +45,7 @@ func (c *Customer) New(ctx *gin.Context) {
 		return
 	}
 
-	customer, err := c.Helper.Insert(&json)
+	customer, err := c.Customer.Insert(&json)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return
@@ -59,7 +61,7 @@ func (c *Customer) ViewAll(ctx *gin.Context) {
 func (c *Customer) View(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	customer, err := c.Helper.Get(uuid.Parse(id))
+	customer, err := c.Customer.Get(uuid.Parse(id))
 	if err != nil {
 		c.ServerError(ctx, err, nil)
 		return
@@ -77,13 +79,19 @@ func (c *Customer) Subscribe(ctx *gin.Context) {
 		return
 	}
 
-	plan, err := c.PlanHelper.Get(json.RoasterID, json.ItemID)
+	roaster, err := c.Roaster.GetByID(json.RoasterID)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return
 	}
 
-	err = c.Helper.Subscribe(uuid.Parse(id), plan, json.Frequency)
+	plan, err := c.Plan.Get(roaster, json.ItemID)
+	if err != nil {
+		c.ServerError(ctx, err, json)
+		return
+	}
+
+	err = c.Customer.Subscribe(uuid.Parse(id), plan, json.Frequency)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return
@@ -106,7 +114,7 @@ func (c *Customer) UpdatePayment(ctx *gin.Context) {
 		return
 	}
 
-	err = c.Helper.AddSource(uuid.Parse(id), json.Token)
+	err = c.Customer.AddSource(uuid.Parse(id), json.Token)
 	if err != nil {
 		c.ServerError(ctx, err, &gin.H{"id": id, "token": json.Token})
 		return
@@ -118,7 +126,7 @@ func (c *Customer) UpdatePayment(ctx *gin.Context) {
 func (c *Customer) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	err := c.Helper.Delete(uuid.Parse(id))
+	err := c.Customer.Delete(uuid.Parse(id))
 	if err != nil {
 		c.ServerError(ctx, err, nil)
 		return

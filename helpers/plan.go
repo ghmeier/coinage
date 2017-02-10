@@ -1,14 +1,15 @@
 package helpers
 
 import (
+	"database/sql"
 	"strings"
 
 	"github.com/pborman/uuid"
 	"github.com/stripe/stripe-go"
 
 	g "github.com/ghmeier/bloodlines/gateways"
-	"github.com/jonnykry/coinage/gateways"
-	"github.com/jonnykry/coinage/models"
+	"github.com/ghmeier/coinage/gateways"
+	"github.com/ghmeier/coinage/models"
 	item "github.com/lcollin/warehouse/models"
 )
 
@@ -55,9 +56,9 @@ func (p *Plan) Insert(id uuid.UUID, accountID string, req *models.PlanRequest) (
 	return plan, nil
 }
 
-func (p *Plan) GetByRoaster(id uuid.UUID, offset int, limit int) ([]*models.Plan, error) {
+func (p *Plan) GetByRoaster(roaster *models.Roaster, offset int, limit int) ([]*models.Plan, error) {
 	rows, err := p.sql.Select("SELECT roasterId,itemId,planIds FROM plan WHERE roasterId=? ORDER BY itemId ASC LIMIT ?,?",
-		id,
+		roaster.ID,
 		offset,
 		limit,
 	)
@@ -65,24 +66,49 @@ func (p *Plan) GetByRoaster(id uuid.UUID, offset int, limit int) ([]*models.Plan
 		return nil, err
 	}
 
-	plans, _ := models.PlanFromSQL(rows)
-
-	return plans, nil
+	return p.plan(roaster.AccountID, rows)
 }
 
-func (p *Plan) Get(id uuid.UUID, itemID uuid.UUID) (*models.Plan, error) {
+func (p *Plan) Get(roaster *models.Roaster, itemID uuid.UUID) (*models.Plan, error) {
 	rows, err := p.sql.Select("SELECT roasterId,itemId,planIds FROM plan WHERE roasterId=? AND itemId=?",
-		id,
+		roaster.ID,
 		itemID,
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
+	plans, err := p.plan(roaster.AccountID, rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return plans[0], err
+}
+
+func (p *Plan) plan(accountID string, rows *sql.Rows) ([]*models.Plan, error) {
 	plans, _ := models.PlanFromSQL(rows)
 
-	return plans[0], nil
+	for i, _ := range plans {
+		stripePlans, err := p.plans(accountID, plans[i].PlanIDs)
+		if err != nil {
+			return nil, err
+		}
+		plans[i].Plans = stripePlans
+	}
+
+	return plans, nil
+}
+
+func (p *Plan) plans(accountID string, ids []string) ([]*stripe.Plan, error) {
+	plans := make([]*stripe.Plan, 0)
+	var err error
+	var plan *stripe.Plan
+	for i := 0; i < len(models.Frequencies); i++ {
+		plan, err = p.Stripe.GetPlan(accountID, ids[i])
+		plans = append(plans, plan)
+	}
+	return plans, err
 }
 
 func (p *Plan) Update(id string, itemId uuid.UUID) (*models.Plan, error) {

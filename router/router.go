@@ -9,9 +9,9 @@ import (
 	"github.com/ghmeier/bloodlines/config"
 	g "github.com/ghmeier/bloodlines/gateways"
 	h "github.com/ghmeier/bloodlines/handlers"
+	"github.com/ghmeier/coinage/gateways"
+	"github.com/ghmeier/coinage/handlers"
 	towncenter "github.com/jakelong95/TownCenter/gateways"
-	"github.com/jonnykry/coinage/gateways"
-	"github.com/jonnykry/coinage/handlers"
 	covenant "github.com/yuderekyu/covenant/gateways"
 )
 

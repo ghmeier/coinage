@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/ghmeier/bloodlines/config"
-	"github.com/jonnykry/coinage/router"
+	"github.com/ghmeier/coinage/router"
 )
 
 func main() {

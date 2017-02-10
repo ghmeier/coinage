@@ -7,9 +7,10 @@ import (
 	"github.com/pborman/uuid"
 
 	g "github.com/ghmeier/bloodlines/gateways"
+	"github.com/ghmeier/coinage/gateways"
+	"github.com/ghmeier/coinage/models"
 	towncenter "github.com/jakelong95/TownCenter/gateways"
-	"github.com/jonnykry/coinage/gateways"
-	"github.com/jonnykry/coinage/models"
+	t "github.com/jakelong95/TownCenter/models"
 )
 
 type baseHelper struct {
@@ -31,36 +32,19 @@ func NewRoaster(sql g.SQL, stripe gateways.Stripe, towncenter towncenter.TownCen
 }
 
 func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
-	user, err := r.TC.GetUser(req.UserID)
+	user, tRoaster, err := r.roaster(req.UserID)
 	if err != nil {
 		return nil, err
 	}
-
-	if user == nil {
-		return nil, fmt.Errorf("ERROR: no user for id %s", req.UserID.String())
-	} else if user.IsRoaster == 0 {
-		return nil, fmt.Errorf("ERROR: no roaster for user %s", req.UserID.String())
-	}
-
-	tRoaster, err := r.TC.GetRoaster(user.RoasterId)
-	if err != nil {
-		return nil, err
-	}
-
-	if r == nil {
-		return nil, fmt.Errorf("ERROR: no roaster info for id %s", user.RoasterId)
-	}
-
 	stripe, err := r.Stripe.NewAccount(req.Country, user, tRoaster)
 	if err != nil {
 		return nil, err
 	}
 
-	roaster := models.NewRoaster(req.UserID, stripe.ID)
+	roaster := models.NewRoaster(tRoaster.ID, stripe.ID)
 	err = r.sql.Modify(
-		"INSERT INTO roaster_account (id, userId, stripeAccountId)VALUE(?, ?, ?)",
+		"INSERT INTO roaster_account (id, stripeAccountId)VALUE(?, ?, ?)",
 		roaster.ID,
-		roaster.UserID,
 		roaster.AccountID,
 	)
 	if err != nil {
@@ -72,16 +56,16 @@ func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 }
 
 func (r *Roaster) GetByUserID(id uuid.UUID) (*models.Roaster, error) {
-	rows, err := r.sql.Select("SELECT id, userId, stripeAccountId FROM roaster_account WHERE userId=?", id)
+	_, roaster, err := r.roaster(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.account(rows)
+	return r.GetByID(roaster.ID)
 }
 
 func (r *Roaster) GetByID(id uuid.UUID) (*models.Roaster, error) {
-	rows, err := r.sql.Select("SELECT id, userId, stripeAccountId FROM roaster_account WHERE id=?", id)
+	rows, err := r.sql.Select("SELECT id, stripeAccountId FROM roaster_account WHERE roasterId=?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -101,4 +85,29 @@ func (r *Roaster) account(rows *sql.Rows) (*models.Roaster, error) {
 	roaster.Account = stripe
 
 	return roaster, nil
+}
+
+/* roaster returns a towncenter user && roaster by user id. errors otherwise */
+func (r *Roaster) roaster(id uuid.UUID) (*t.User, *t.Roaster, error) {
+	u, err := r.TC.GetUser(id)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if u == nil {
+		return nil, nil, fmt.Errorf("ERROR: no user for id %s", id.String())
+	} else if u.IsRoaster == 0 {
+		return nil, nil, fmt.Errorf("ERROR: no roaster for user %s", id.String())
+	}
+
+	roaster, err := r.TC.GetRoaster(u.RoasterId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if roaster == nil {
+		return nil, nil, fmt.Errorf("ERROR: no roaster info for id %s", u.RoasterId)
+	}
+
+	return u, roaster, nil
 }

@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	bgateways "github.com/ghmeier/bloodlines/gateways"
+	mocks "github.com/ghmeier/coinage/_mocks/gateways"
 	tmocks "github.com/jakelong95/TownCenter/_mocks"
 	tmodels "github.com/jakelong95/TownCenter/models"
-	mocks "github.com/jonnykry/coinage/_mocks/gateways"
-	//"github.com/jonnykry/coinage/gateways"
-	"github.com/jonnykry/coinage/models"
+	//"github.com/ghmeier/coinage/gateways"
+	"github.com/ghmeier/coinage/models"
 	cmocks "github.com/yuderekyu/covenant/_mocks/gateways"
 	//cgateways "github.com/yuderekyu/covenant/gateways"
 

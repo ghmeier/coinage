@@ -1,6 +1,7 @@
 # coinage
-[![Build Status](https://travis-ci.org/jonnykry/coinage.svg?branch=master)](https://travis-ci.org/jonnykry/coinage)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jonnykry/coinage)](https://goreportcard.com/report/github.com/jonnykry/coinage)
+[![Build Status](https://travis-ci.org/ghmeier/coinage.svg?branch=master)](https://travis-ci.org/ghmeier/coinage)
+[![Coverage Status](https://coveralls.io/repos/github/ghmeier/coinage/badge.svg?branch=master)](https://coveralls.io/github/ghmeier/coinage?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ghmeier/coinage)](https://goreportcard.com/report/github.com/ghmeier/coinage)
 
 A go service for handling Expresso billing
 

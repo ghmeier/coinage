@@ -105,7 +105,7 @@ func TestInsertCustomerError(t *testing.T) {
 	assert.Nil(c)
 }
 
-func TestViewCustomerSuccess(t *testing.T) {
+func TestGetCustomerSuccess(t *testing.T) {
 	assert := assert.New(t)
 	mocks, customer := getMockCustomer()
 
@@ -119,13 +119,13 @@ func TestViewCustomerSuccess(t *testing.T) {
 			AddRow(id.String(), user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
-	res, err := customer.View(user.ID)
+	res, err := customer.Get(user.ID)
 
 	assert.NoError(err)
 	assert.NotNil(res)
 }
 
-func TestViewCustomerError(t *testing.T) {
+func TestGetCustomerError(t *testing.T) {
 	assert := assert.New(t)
 	mocks, customer := getMockCustomer()
 
@@ -135,13 +135,13 @@ func TestViewCustomerError(t *testing.T) {
 		WithArgs(user.ID.String()).
 		WillReturnError(fmt.Errorf("some error"))
 
-	res, err := customer.View(user.ID)
+	res, err := customer.Get(user.ID)
 
 	assert.Error(err)
 	assert.Nil(res)
 }
 
-func TestViewCustomerStripeFail(t *testing.T) {
+func TestGetCustomerStripeFail(t *testing.T) {
 	assert := assert.New(t)
 	mocks, customer := getMockCustomer()
 
@@ -154,7 +154,7 @@ func TestViewCustomerStripeFail(t *testing.T) {
 			AddRow(id.String(), user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(nil, fmt.Errorf("some error"))
 
-	res, err := customer.View(user.ID)
+	res, err := customer.Get(user.ID)
 
 	assert.Error(err)
 	assert.Nil(res)

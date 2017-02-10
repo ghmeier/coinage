@@ -59,7 +59,7 @@ func (c *Customer) ViewAll(ctx *gin.Context) {
 func (c *Customer) View(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	customer, err := c.Helper.View(uuid.Parse(id))
+	customer, err := c.Helper.Get(uuid.Parse(id))
 	if err != nil {
 		c.ServerError(ctx, err, nil)
 		return

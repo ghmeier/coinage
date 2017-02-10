@@ -58,10 +58,10 @@ func New(config *config.Root) (*Billing, error) {
 	b.router = gin.Default()
 	b.router.Use(h.GetCors())
 
+	// id in this case is UserID
 	roaster := b.router.Group("/api/roaster")
 	{
 		roaster.POST("", b.roaster.New)
-		roaster.GET("", b.roaster.ViewAll)
 		roaster.GET("/:id", b.roaster.View)
 		//roaster.PUT("/:id", b.roaster.Update)
 		roaster.DELETE("/:id", b.roaster.Deactivate)

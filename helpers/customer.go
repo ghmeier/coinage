@@ -56,7 +56,7 @@ func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error)
 	return customer, nil
 }
 
-func (c *Customer) View(id uuid.UUID) (*models.Customer, error) {
+func (c *Customer) Get(id uuid.UUID) (*models.Customer, error) {
 	rows, err := c.sql.Select("SELECT id, userId, stripeCustomerId FROM customer_account WHERE userId=?", id.String())
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (c *Customer) View(id uuid.UUID) (*models.Customer, error) {
 // userID uuid.UUID, createdAt string, startAt string, shopID uuid.UUID, ozInBag float64,
 // beanName string, roastName string, price float64
 func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Frequency) error {
-	customer, err := c.View(id)
+	customer, err := c.Get(id)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 }
 
 func (c *Customer) AddSource(id uuid.UUID, token string) error {
-	customer, err := c.View(id)
+	customer, err := c.Get(id)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func (c *Customer) AddSource(id uuid.UUID, token string) error {
 }
 
 func (c *Customer) Delete(id uuid.UUID) error {
-	customer, err := c.View(id)
+	customer, err := c.Get(id)
 	if err != nil {
 		return err
 	}

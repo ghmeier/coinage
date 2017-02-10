@@ -12,7 +12,6 @@ import (
 
 type RoasterI interface {
 	New(ctx *gin.Context)
-	ViewAll(ctx *gin.Context)
 	View(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Deactivate(ctx *gin.Context)
@@ -49,22 +48,10 @@ func (c *Roaster) New(ctx *gin.Context) {
 	c.Success(ctx, account)
 }
 
-func (c *Roaster) ViewAll(ctx *gin.Context) {
-	offset, limit := c.GetPaging(ctx)
-
-	accounts, err := c.Helper.GetAll(offset, limit)
-	if err != nil {
-		c.ServerError(ctx, err, nil)
-		return
-	}
-
-	c.Success(ctx, accounts)
-}
-
 func (c *Roaster) View(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	account, err := c.Helper.GetByID(uuid.Parse(id))
+	account, err := c.Helper.GetByUserID(uuid.Parse(id))
 	if err != nil {
 		c.ServerError(ctx, err, nil)
 		return

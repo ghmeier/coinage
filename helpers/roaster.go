@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/pborman/uuid"
@@ -62,24 +63,21 @@ func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 		roaster.UserID,
 		roaster.AccountID,
 	)
+	if err != nil {
+		return nil, err
+	}
+
 	roaster.Account = stripe
-	return roaster, err
+	return roaster, nil
 }
 
-func (r *Roaster) GetAll(offset int, limit int) ([]*models.Roaster, error) {
-	rows, err := r.sql.Select("SELECT id, userId, stripeAccountId FROM roaster_account ORDER BY id ASC LIMIT ?,?",
-		offset,
-		limit)
+func (r *Roaster) GetByUserID(id uuid.UUID) (*models.Roaster, error) {
+	rows, err := r.sql.Select("SELECT id, userId, stripeAccountId FROM roaster_account WHERE userId=?", id)
 	if err != nil {
 		return nil, err
 	}
 
-	roasters, err := models.RoasterFromSql(rows)
-	if err != nil {
-		return nil, err
-	}
-
-	return roasters, nil
+	return r.account(rows)
 }
 
 func (r *Roaster) GetByID(id uuid.UUID) (*models.Roaster, error) {
@@ -88,10 +86,19 @@ func (r *Roaster) GetByID(id uuid.UUID) (*models.Roaster, error) {
 		return nil, err
 	}
 
-	roasters, err := models.RoasterFromSql(rows)
+	return r.account(rows)
+}
+
+func (r *Roaster) account(rows *sql.Rows) (*models.Roaster, error) {
+	roasters, _ := models.RoasterFromSql(rows)
+
+	roaster := roasters[0]
+	stripe, err := r.Stripe.GetAccount(roaster.AccountID)
 	if err != nil {
 		return nil, err
 	}
 
-	return roasters[0], nil
+	roaster.Account = stripe
+
+	return roaster, nil
 }

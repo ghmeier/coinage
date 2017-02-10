@@ -97,8 +97,9 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 		return err
 	}
 
-	//subscription := sub.NewSubscription(id, time.Now(), time.Now(), plan.RoasterID)
-	//c.Covenant.NewSubscription()
+	// TODO: add subs to covenant
+	// subscription := sub.NewSubscription(id, time.Now(), time.Now(), plan.RoasterID)
+	// c.Covenant.NewSubscription()
 
 	return err
 }
@@ -114,6 +115,16 @@ func (c *Customer) AddSource(id uuid.UUID, token string) error {
 }
 
 func (c *Customer) Delete(id uuid.UUID) error {
-	err := c.sql.Modify("DELETE FROM customer_account WHERE userId=?", id)
+	customer, err := c.View(id)
+	if err != nil {
+		return err
+	}
+
+	err = c.Stripe.DeleteCustomer(customer.CustomerID)
+	if err != nil {
+		return err
+	}
+
+	err = c.sql.Modify("DELETE FROM customer_account WHERE userId=?", id)
 	return err
 }

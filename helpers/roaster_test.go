@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	//"database/sql"
 	"fmt"
 	"testing"
 
@@ -9,16 +8,13 @@ import (
 	tmocks "github.com/jakelong95/TownCenter/_mocks"
 	tmodels "github.com/jakelong95/TownCenter/models"
 	mocks "github.com/jonnykry/coinage/_mocks/gateways"
-	//"github.com/jonnykry/coinage/gateways"
 	"github.com/jonnykry/coinage/models"
 	cmocks "github.com/yuderekyu/covenant/_mocks/gateways"
-	//cgateways "github.com/yuderekyu/covenant/gateways"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/pborman/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stripe/stripe-go"
-	//m "github.com/stretchr/testify/mock"
 )
 
 func TestInsertRoasterSuccess(t *testing.T) {

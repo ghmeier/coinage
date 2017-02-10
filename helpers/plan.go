@@ -49,7 +49,10 @@ func (p *Plan) Insert(id uuid.UUID, accountID string, req *models.PlanRequest) (
 		plan.ItemID,
 		strings.Join(plan.PlanIDs, ","),
 	)
-	return plan, err
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
 }
 
 func (p *Plan) GetByRoaster(id uuid.UUID, offset int, limit int) ([]*models.Plan, error) {

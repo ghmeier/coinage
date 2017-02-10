@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/jonnykry/coinage",
+	"ImportPath": "github.com/ghmeier/coinage",
 	"GoVersion": "go1.6.3",
 	"Packages": [
 		"./..."
@@ -12,23 +12,23 @@
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/config",
-			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
+			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/gateways",
-			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
+			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/handlers",
-			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
+			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/helpers",
-			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
+			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/models",
-			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
+			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
 		},
 		{
 			"ImportPath": "github.com/gin-gonic/gin/binding",

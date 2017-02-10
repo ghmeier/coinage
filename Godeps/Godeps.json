@@ -6,24 +6,29 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/DATA-DOG/go-sqlmock",
+			"Comment": "v1.1.4-14-g947ce30",
+			"Rev": "947ce303a7986ba00a8c29f5835c5c58f649f856"
+		},
+		{
 			"ImportPath": "github.com/ghmeier/bloodlines/config",
-			"Rev": "6f002bbb0061237c9ec1dd9bec95a5222f9c7fd1"
+			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/gateways",
-			"Rev": "6f002bbb0061237c9ec1dd9bec95a5222f9c7fd1"
+			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/handlers",
-			"Rev": "6f002bbb0061237c9ec1dd9bec95a5222f9c7fd1"
+			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/helpers",
-			"Rev": "6f002bbb0061237c9ec1dd9bec95a5222f9c7fd1"
+			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/models",
-			"Rev": "6f002bbb0061237c9ec1dd9bec95a5222f9c7fd1"
+			"Rev": "1715864dd1658bbac3c706d8e2bc73cc9824deca"
 		},
 		{
 			"ImportPath": "github.com/gin-gonic/gin/binding",
@@ -45,16 +50,24 @@
 			"Rev": "98fa357170587e470c5f27d3c3ea0947b71eb455"
 		},
 		{
+			"ImportPath": "github.com/jakelong95/TownCenter/_mocks",
+			"Rev": "1aadc5ae9ec349bc5a2d4f22a5dd10e6b3cff209"
+		},
+		{
 			"ImportPath": "github.com/jakelong95/TownCenter/gateways",
-			"Rev": "9e44a352b1cec4203b06fe92c33199b93ac3bec2"
+			"Rev": "1aadc5ae9ec349bc5a2d4f22a5dd10e6b3cff209"
+		},
+		{
+			"ImportPath": "github.com/jakelong95/TownCenter/helpers",
+			"Rev": "1aadc5ae9ec349bc5a2d4f22a5dd10e6b3cff209"
 		},
 		{
 			"ImportPath": "github.com/jakelong95/TownCenter/models",
-			"Rev": "9e44a352b1cec4203b06fe92c33199b93ac3bec2"
+			"Rev": "1aadc5ae9ec349bc5a2d4f22a5dd10e6b3cff209"
 		},
 		{
 			"ImportPath": "github.com/lcollin/warehouse/models",
-			"Rev": "0ced5f55e96ba283289a49503f68efc6d14d3b60"
+			"Rev": "b20ee27ba75276ff81c07662b5e88439a083b0ad"
 		},
 		{
 			"ImportPath": "github.com/manucorporat/sse",
@@ -80,9 +93,46 @@
 			"Rev": "4da4cfa085c174b489ec35cf1e29ffb147d45298"
 		},
 		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.1.4-6-g18a02ba",
+			"Rev": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/mock",
+			"Comment": "v1.1.4-6-g18a02ba",
+			"Rev": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
+			"Comment": "v1.1.4-6-g18a02ba",
+			"Rev": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
+			"Comment": "v1.1.4-6-g18a02ba",
+			"Rev": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/vendor/github.com/stretchr/objx",
+			"Comment": "v1.1.4-6-g18a02ba",
+			"Rev": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e"
+		},
+		{
 			"ImportPath": "github.com/stripe/stripe-go",
 			"Comment": "v19.2.0",
 			"Rev": "3f2707ab5115e7c54c70a77aabcb386d6f405810"
+		},
+		{
+			"ImportPath": "github.com/yuderekyu/covenant/_mocks/gateways",
+			"Rev": "91b2e17a8b6800f19b64aaeba019a330bee77063"
+		},
+		{
+			"ImportPath": "github.com/yuderekyu/covenant/gateways",
+			"Rev": "91b2e17a8b6800f19b64aaeba019a330bee77063"
+		},
+		{
+			"ImportPath": "github.com/yuderekyu/covenant/models",
+			"Rev": "91b2e17a8b6800f19b64aaeba019a330bee77063"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",

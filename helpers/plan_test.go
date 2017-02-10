@@ -133,10 +133,10 @@ func getMockPlanRequest() *models.PlanRequest {
 
 func getMockPlans() []*stripe.Plan {
 	return []*stripe.Plan{
-		&stripe.Plan{ID: "1"},
-		&stripe.Plan{ID: "2"},
-		&stripe.Plan{ID: "3"},
-		&stripe.Plan{ID: "4"},
+		{ID: "1"},
+		{ID: "2"},
+		{ID: "3"},
+		{ID: "4"},
 	}
 }
 

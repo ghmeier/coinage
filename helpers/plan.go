@@ -89,7 +89,7 @@ func (p *Plan) Get(roaster *models.Roaster, itemID uuid.UUID) (*models.Plan, err
 func (p *Plan) plan(accountID string, rows *sql.Rows) ([]*models.Plan, error) {
 	plans, _ := models.PlanFromSQL(rows)
 
-	for i, _ := range plans {
+	for i := range plans {
 		stripePlans, err := p.plans(accountID, plans[i].PlanIDs)
 		if err != nil {
 			return nil, err

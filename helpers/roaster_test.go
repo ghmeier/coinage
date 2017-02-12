@@ -176,7 +176,7 @@ func TestGetIDRoasterAccountFail(t *testing.T) {
 		WithArgs(id.String()).
 		WillReturnRows(getRoasterRows().
 			AddRow(r.ID.String(), r.AccountID))
-	c, err := roaster.GetByID(id)
+	c, err := roaster.Get(id)
 
 	assert.Error(err)
 	assert.Nil(c)
@@ -191,7 +191,7 @@ func TestGetIDRoasterSQLFail(t *testing.T) {
 	mocks.sql.ExpectQuery("SELECT id, stripeAccountId FROM roaster_account").
 		WithArgs(id.String()).
 		WillReturnError(fmt.Errorf("some error"))
-	c, err := roaster.GetByID(id)
+	c, err := roaster.Get(id)
 
 	assert.Error(err)
 	assert.Nil(c)

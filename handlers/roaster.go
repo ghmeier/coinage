@@ -19,13 +19,13 @@ type RoasterI interface {
 
 type Roaster struct {
 	*handlers.BaseHandler
-	Helper *helpers.Roaster
+	Roaster *helpers.Roaster
 }
 
 func NewRoaster(ctx *handlers.GatewayContext) RoasterI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.roaster_account"))
 	return &Roaster{
-		Helper:      helpers.NewRoaster(ctx.Sql, ctx.Stripe, ctx.TownCenter),
+		Roaster:     helpers.NewRoaster(ctx.Sql, ctx.Stripe, ctx.TownCenter),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}
 }
@@ -39,7 +39,7 @@ func (c *Roaster) New(ctx *gin.Context) {
 		return
 	}
 
-	account, err := c.Helper.Insert(&json)
+	account, err := c.Roaster.Insert(&json)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return
@@ -51,9 +51,14 @@ func (c *Roaster) New(ctx *gin.Context) {
 func (c *Roaster) View(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	account, err := c.Helper.GetByUserID(uuid.Parse(id))
+	account, err := c.Roaster.GetByUserID(uuid.Parse(id))
 	if err != nil {
 		c.ServerError(ctx, err, nil)
+		return
+	}
+
+	if account == nil {
+		c.UserError(ctx, "ERROR: roaster does not exist", id)
 		return
 	}
 

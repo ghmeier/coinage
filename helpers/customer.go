@@ -70,15 +70,14 @@ func (c *Customer) Get(id uuid.UUID) (*models.Customer, error) {
 	}
 
 	customer := customers[0]
-
-	stripeCustomer, err := c.Stripe.GetCustomer(customer.CustomerID)
+	stripe, err := c.Stripe.GetCustomer(customer.CustomerID)
 	if err != nil {
 		return nil, err
 	}
 
-	customer.Sources = stripeCustomer.Sources
-	customer.Subscriptions = stripeCustomer.Subs
-	customer.Meta = stripeCustomer.Meta
+	customer.Sources = stripe.Sources
+	customer.Subscriptions = stripe.Subs
+	customer.Meta = stripe.Meta
 	return customer, nil
 }
 

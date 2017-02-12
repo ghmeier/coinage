@@ -42,9 +42,14 @@ func (p *Plan) New(ctx *gin.Context) {
 		return
 	}
 
-	roaster, err := p.Roaster.GetByID(uuid.Parse(id))
+	roaster, err := p.Roaster.Get(uuid.Parse(id))
 	if err != nil {
 		p.ServerError(ctx, err, json)
+		return
+	}
+
+	if roaster == nil {
+		p.UserError(ctx, "ERROR: roaster does not exist", id)
 		return
 	}
 

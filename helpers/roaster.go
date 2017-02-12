@@ -61,10 +61,10 @@ func (r *Roaster) GetByUserID(id uuid.UUID) (*models.Roaster, error) {
 		return nil, err
 	}
 
-	return r.GetByID(roaster.ID)
+	return r.Get(roaster.ID)
 }
 
-func (r *Roaster) GetByID(id uuid.UUID) (*models.Roaster, error) {
+func (r *Roaster) Get(id uuid.UUID) (*models.Roaster, error) {
 	rows, err := r.sql.Select("SELECT id, stripeAccountId FROM roaster_account WHERE roasterId=?", id)
 	if err != nil {
 		return nil, err
@@ -75,6 +75,9 @@ func (r *Roaster) GetByID(id uuid.UUID) (*models.Roaster, error) {
 
 func (r *Roaster) account(rows *sql.Rows) (*models.Roaster, error) {
 	roasters, _ := models.RoasterFromSql(rows)
+	if len(roasters) < 1 {
+		return nil, nil
+	}
 
 	roaster := roasters[0]
 	stripe, err := r.Stripe.GetAccount(roaster.AccountID)

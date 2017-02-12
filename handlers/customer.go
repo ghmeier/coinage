@@ -76,6 +76,11 @@ func (c *Customer) View(ctx *gin.Context) {
 		return
 	}
 
+	if customer == nil {
+		c.UserError(ctx, "ERROR: customer does not exist", nil)
+		return
+	}
+
 	c.Success(ctx, customer)
 }
 
@@ -88,7 +93,7 @@ func (c *Customer) Subscribe(ctx *gin.Context) {
 		return
 	}
 
-	roaster, err := c.Roaster.GetByID(json.RoasterID)
+	roaster, err := c.Roaster.Get(json.RoasterID)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return

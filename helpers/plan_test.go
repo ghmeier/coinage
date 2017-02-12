@@ -106,6 +106,95 @@ func TestGetPlanSuccess(t *testing.T) {
 	assert.NotNil(c)
 }
 
+func TestGetPlanSQLFail(t *testing.T) {
+	assert := assert.New(t)
+	mocks, p := getMockPHelper()
+
+	id := uuid.NewUUID()
+
+	roaster := getMockRoasterAccount(id)
+	req := getMockPlanRequest()
+
+	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
+		WillReturnError(fmt.Errorf("some error"))
+
+	c, err := p.Get(roaster, req.ItemID)
+
+	assert.Error(err)
+	assert.Nil(c)
+}
+
+func TestGetPlanStripeFail(t *testing.T) {
+	assert := assert.New(t)
+	mocks, p := getMockPHelper()
+
+	id := uuid.NewUUID()
+	accountID := "accountID"
+	plan := getMockPlan(id)
+
+	roaster := getMockRoasterAccount(id)
+	req := getMockPlanRequest()
+
+	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[0]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[1]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[2]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[3]).Return(nil, fmt.Errorf("some error"))
+	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
+		WillReturnRows(getPlanRows().
+			AddRow(id.String(), req.ItemID.String(), strings.Join(plan.PlanIDs, ",")))
+
+	c, err := p.Get(roaster, req.ItemID)
+
+	assert.Error(err)
+	assert.Nil(c)
+}
+
+func TestGetPlanByRoasterSuccess(t *testing.T) {
+	assert := assert.New(t)
+	mocks, p := getMockPHelper()
+
+	id := uuid.NewUUID()
+	plans := getMockPlans()
+	plan := getMockPlan(id)
+
+	roaster := getMockRoasterAccount(id)
+
+	mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[0]).Return(plans[0], nil)
+	mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[1]).Return(plans[1], nil)
+	mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[2]).Return(plans[2], nil)
+	mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[3]).Return(plans[3], nil)
+	// mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[0]).Return(plans[0], nil)
+	// mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[1]).Return(plans[1], nil)
+	// mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[2]).Return(plans[2], nil)
+	// mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[3]).Return(plans[3], nil)
+	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
+		WillReturnRows(getPlanRows().
+			AddRow(id.String(), uuid.New(), strings.Join(plan.PlanIDs, ",")).
+			AddRow(id.String(), uuid.New(), strings.Join(plan.PlanIDs, ",")))
+
+	c, err := p.GetByRoaster(roaster, 0, 20)
+
+	assert.NoError(err)
+	assert.NotNil(c)
+	assert.Equal(2, len(c))
+}
+
+func TestGetPlanByRoasterFail(t *testing.T) {
+	assert := assert.New(t)
+	mocks, p := getMockPHelper()
+
+	id := uuid.NewUUID()
+
+	roaster := getMockRoasterAccount(id)
+
+	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
+		WillReturnError(fmt.Errorf("some error"))
+	c, err := p.GetByRoaster(roaster, 0, 20)
+
+	assert.Error(err)
+	assert.Nil(c)
+}
+
 func getMockPHelper() (*mockContext, *Plan) {
 	s, mock, _ := sqlmock.New()
 	mocks := &mockContext{

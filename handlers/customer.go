@@ -39,13 +39,22 @@ func NewCustomer(ctx *handlers.GatewayContext) CustomerI {
 
 func (c *Customer) New(ctx *gin.Context) {
 	var json models.CustomerRequest
-	err := ctx.BindJSON(json)
+	err := ctx.BindJSON(&json)
 	if err != nil {
-		c.UserError(ctx, "ERROR: unable to parse body", err)
+		c.UserError(ctx, "ERROR: unable to parse body", err.Error())
 		return
 	}
 
-	customer, err := c.Customer.Insert(&json)
+	customer, err := c.Customer.Get(json.UserID)
+	if err == nil && customer != nil {
+		c.UserError(ctx, "ERROR: customer already exists", nil)
+		return
+	} else if err != nil {
+		c.ServerError(ctx, err, json)
+		return
+	}
+
+	customer, err = c.Customer.Insert(&json)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return
@@ -73,7 +82,7 @@ func (c *Customer) View(ctx *gin.Context) {
 func (c *Customer) Subscribe(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var json models.SubscribeRequest
-	err := ctx.BindJSON(json)
+	err := ctx.BindJSON(&json)
 	if err != nil {
 		c.UserError(ctx, "ERROR: invalid subscribe request", err)
 		return
@@ -108,7 +117,7 @@ func (c *Customer) UpdatePayment(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	var json models.CustomerRequest
-	err := ctx.BindJSON(json)
+	err := ctx.BindJSON(&json)
 	if err != nil {
 		c.UserError(ctx, "ERROR: token is a required parameter", err)
 		return

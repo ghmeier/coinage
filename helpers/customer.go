@@ -64,6 +64,11 @@ func (c *Customer) Get(id uuid.UUID) (*models.Customer, error) {
 
 	// no error possible right now
 	customers, _ := models.CustomersFromSQL(rows)
+	if len(customers) < 1 {
+		// no customers for that userID
+		return nil, nil
+	}
+
 	customer := customers[0]
 
 	stripeCustomer, err := c.Stripe.GetCustomer(customer.CustomerID)

@@ -15,6 +15,7 @@ type RoasterI interface {
 	View(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Deactivate(ctx *gin.Context)
+	Time() gin.HandlerFunc
 }
 
 type Roaster struct {

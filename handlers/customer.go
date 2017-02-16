@@ -18,6 +18,7 @@ type CustomerI interface {
 	UpdatePayment(ctx *gin.Context)
 	Subscribe(ctx *gin.Context)
 	Unsubscribe(ctx *gin.Context)
+	Time() gin.HandlerFunc
 }
 
 type Customer struct {

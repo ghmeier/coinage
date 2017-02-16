@@ -61,6 +61,7 @@ func New(config *config.Root) (*Billing, error) {
 	// id in this case is UserID
 	roaster := b.router.Group("/api/roaster")
 	{
+		roaster.Use(b.roaster.Time())
 		roaster.POST("", b.roaster.New)
 		roaster.GET("/:id", b.roaster.View)
 		//roaster.PUT("/:id", b.roaster.Update)
@@ -73,6 +74,7 @@ func New(config *config.Root) (*Billing, error) {
 	}
 	customer := b.router.Group("/api/customer")
 	{
+		customer.Use(b.roaster.Time())
 		customer.POST("", b.customer.New)
 		customer.GET("", b.customer.ViewAll)
 		customer.GET("/:id", b.customer.View)

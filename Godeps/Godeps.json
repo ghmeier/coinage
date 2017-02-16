@@ -12,23 +12,23 @@
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/config",
-			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
+			"Rev": "10757055f08b983670628de513c0d95813cb1df7"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/gateways",
-			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
+			"Rev": "10757055f08b983670628de513c0d95813cb1df7"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/handlers",
-			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
+			"Rev": "10757055f08b983670628de513c0d95813cb1df7"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/helpers",
-			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
+			"Rev": "10757055f08b983670628de513c0d95813cb1df7"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/models",
-			"Rev": "df95938a6ec561abe3070e4addda08bdc775c7a5"
+			"Rev": "10757055f08b983670628de513c0d95813cb1df7"
 		},
 		{
 			"ImportPath": "github.com/gin-gonic/gin/binding",
@@ -51,23 +51,23 @@
 		},
 		{
 			"ImportPath": "github.com/jakelong95/TownCenter/_mocks",
-			"Rev": "1aadc5ae9ec349bc5a2d4f22a5dd10e6b3cff209"
+			"Rev": "cbbfa774610ec54da267cd0a7dfa4bfcc207c045"
 		},
 		{
 			"ImportPath": "github.com/jakelong95/TownCenter/gateways",
-			"Rev": "1aadc5ae9ec349bc5a2d4f22a5dd10e6b3cff209"
+			"Rev": "cbbfa774610ec54da267cd0a7dfa4bfcc207c045"
 		},
 		{
 			"ImportPath": "github.com/jakelong95/TownCenter/helpers",
-			"Rev": "1aadc5ae9ec349bc5a2d4f22a5dd10e6b3cff209"
+			"Rev": "cbbfa774610ec54da267cd0a7dfa4bfcc207c045"
 		},
 		{
 			"ImportPath": "github.com/jakelong95/TownCenter/models",
-			"Rev": "1aadc5ae9ec349bc5a2d4f22a5dd10e6b3cff209"
+			"Rev": "cbbfa774610ec54da267cd0a7dfa4bfcc207c045"
 		},
 		{
 			"ImportPath": "github.com/lcollin/warehouse/models",
-			"Rev": "b20ee27ba75276ff81c07662b5e88439a083b0ad"
+			"Rev": "49da0e8b11e482c2074422a71db02c1994dfd405"
 		},
 		{
 			"ImportPath": "github.com/manucorporat/sse",
@@ -124,15 +124,15 @@
 		},
 		{
 			"ImportPath": "github.com/yuderekyu/covenant/_mocks/gateways",
-			"Rev": "91b2e17a8b6800f19b64aaeba019a330bee77063"
+			"Rev": "6b4a3af66588a4a75ae778eff498f8c7537e47fa"
 		},
 		{
 			"ImportPath": "github.com/yuderekyu/covenant/gateways",
-			"Rev": "91b2e17a8b6800f19b64aaeba019a330bee77063"
+			"Rev": "6b4a3af66588a4a75ae778eff498f8c7537e47fa"
 		},
 		{
 			"ImportPath": "github.com/yuderekyu/covenant/models",
-			"Rev": "91b2e17a8b6800f19b64aaeba019a330bee77063"
+			"Rev": "6b4a3af66588a4a75ae778eff498f8c7537e47fa"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",

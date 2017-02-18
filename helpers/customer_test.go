@@ -12,13 +12,13 @@ import (
 	//"github.com/ghmeier/coinage/gateways"
 	"github.com/ghmeier/coinage/models"
 	cmocks "github.com/yuderekyu/covenant/_mocks/gateways"
-	//cgateways "github.com/yuderekyu/covenant/gateways"
+	//cmodels "github.com/yuderekyu/covenant/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/pborman/uuid"
 	"github.com/stretchr/testify/assert"
+	m "github.com/stretchr/testify/mock"
 	"github.com/stripe/stripe-go"
-	//m "github.com/stretchr/testify/mock"
 )
 
 func TestInsertCustomerSuccess(t *testing.T) {
@@ -178,6 +178,7 @@ func TestSubscribeSuccess(t *testing.T) {
 			AddRow(id.String(), user.ID.String(), "customerID"))
 	mocks.stripe.On("Subscribe", "customerID", plan.PlanIDs[0]).Return(nil, nil)
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
+	mocks.c.On("NewSubscription", m.AnythingOfType("*models.Subscription")).Return(nil, nil)
 
 	err := customer.Subscribe(user.ID, plan, freq)
 

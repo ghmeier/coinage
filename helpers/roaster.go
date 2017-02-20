@@ -109,7 +109,7 @@ func (r *Roaster) roaster(id uuid.UUID) (*t.User, *t.Roaster, error) {
 	}
 
 	if roaster == nil {
-		return nil, nil, fmt.Errorf("ERROR: no roaster info for id %s", u.RoasterId)
+		return nil, nil, fmt.Errorf("ERROR: no roaster info for id %s", u.RoasterId.String())
 	}
 
 	return u, roaster, nil

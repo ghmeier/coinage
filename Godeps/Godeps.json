@@ -12,23 +12,23 @@
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/config",
-			"Rev": "5cd23693f1a4c8b8737e12a89a621d747ff7449e"
+			"Rev": "b933aa74f3513f415583918e689fe9a616b2af1b"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/gateways",
-			"Rev": "5cd23693f1a4c8b8737e12a89a621d747ff7449e"
+			"Rev": "b933aa74f3513f415583918e689fe9a616b2af1b"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/handlers",
-			"Rev": "5cd23693f1a4c8b8737e12a89a621d747ff7449e"
+			"Rev": "b933aa74f3513f415583918e689fe9a616b2af1b"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/helpers",
-			"Rev": "5cd23693f1a4c8b8737e12a89a621d747ff7449e"
+			"Rev": "b933aa74f3513f415583918e689fe9a616b2af1b"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/models",
-			"Rev": "5cd23693f1a4c8b8737e12a89a621d747ff7449e"
+			"Rev": "b933aa74f3513f415583918e689fe9a616b2af1b"
 		},
 		{
 			"ImportPath": "github.com/gin-gonic/gin/binding",
@@ -67,11 +67,11 @@
 		},
 		{
 			"ImportPath": "github.com/lcollin/warehouse/gateways",
-			"Rev": "b12e377d787b2106fd118540f4010d176b55cc57"
+			"Rev": "f1142de0b01f1acb65616436478818e435614316"
 		},
 		{
 			"ImportPath": "github.com/lcollin/warehouse/models",
-			"Rev": "b12e377d787b2106fd118540f4010d176b55cc57"
+			"Rev": "f1142de0b01f1acb65616436478818e435614316"
 		},
 		{
 			"ImportPath": "github.com/manucorporat/sse",
@@ -128,15 +128,15 @@
 		},
 		{
 			"ImportPath": "github.com/yuderekyu/covenant/_mocks/gateways",
-			"Rev": "625109f8c32d1f1efcf2ad420370f8cffc3d5cf8"
+			"Rev": "8009b4e800ce095adf0c50484ffbdd95891dce30"
 		},
 		{
 			"ImportPath": "github.com/yuderekyu/covenant/gateways",
-			"Rev": "625109f8c32d1f1efcf2ad420370f8cffc3d5cf8"
+			"Rev": "8009b4e800ce095adf0c50484ffbdd95891dce30"
 		},
 		{
 			"ImportPath": "github.com/yuderekyu/covenant/models",
-			"Rev": "625109f8c32d1f1efcf2ad420370f8cffc3d5cf8"
+			"Rev": "8009b4e800ce095adf0c50484ffbdd95891dce30"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",

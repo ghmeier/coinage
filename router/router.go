@@ -15,14 +15,17 @@ import (
 	covenant "github.com/yuderekyu/covenant/gateways"
 )
 
-type Billing struct {
+/*Coinage has all the handlers, and routing for the billing microzervice
+  README.md has api information*/
+type Coinage struct {
 	router   *gin.Engine
 	roaster  handlers.RoasterI
 	customer handlers.CustomerI
 	plan     handlers.PlanI
 }
 
-func New(config *config.Root) (*Billing, error) {
+/*New creates and instruments a coinage router*/
+func New(config *config.Root) (*Coinage, error) {
 	sql, err := g.NewSQL(config.SQL)
 	if err != nil {
 		fmt.Println("ERROR: could not connect to mysql.")
@@ -50,7 +53,7 @@ func New(config *config.Root) (*Billing, error) {
 		Covenant:   covenant,
 	}
 
-	b := &Billing{
+	b := &Coinage{
 		roaster:  handlers.NewRoaster(ctx),
 		customer: handlers.NewCustomer(ctx),
 		plan:     handlers.NewPlan(ctx),
@@ -87,6 +90,7 @@ func New(config *config.Root) (*Billing, error) {
 	return b, nil
 }
 
-func (b *Billing) Start(port string) {
+/*Start runs the routing engine in gin*/
+func (b *Coinage) Start(port string) {
 	b.router.Run(port)
 }

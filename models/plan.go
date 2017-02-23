@@ -8,6 +8,7 @@ import (
 	"github.com/stripe/stripe-go"
 )
 
+/*Plan stores stripe information for a roaster's items*/
 type Plan struct {
 	RoasterID uuid.UUID      `json:"roasterId"`
 	ItemID    uuid.UUID      `json:"itemId"`
@@ -15,10 +16,13 @@ type Plan struct {
 	Plans     []*stripe.Plan `json:"plans"`
 }
 
+/*PlanRequest contains the information for creating a
+  plan in stripe for a roaster */
 type PlanRequest struct {
 	ItemID uuid.UUID `json:"itemId"`
 }
 
+/*NewPlan creates and initializes the ID fields*/
 func NewPlan(roasterID, itemID uuid.UUID, planIDs []string) *Plan {
 	return &Plan{
 		RoasterID: roasterID,
@@ -27,6 +31,8 @@ func NewPlan(roasterID, itemID uuid.UUID, planIDs []string) *Plan {
 	}
 }
 
+/*PlanFromSQL maps sql rows to plan models, where
+  order matters*/
 func PlanFromSQL(rows *sql.Rows) ([]*Plan, error) {
 	plans := make([]*Plan, 0)
 
@@ -43,7 +49,9 @@ func PlanFromSQL(rows *sql.Rows) ([]*Plan, error) {
 	return plans, nil
 }
 
-func ToFrequency(s string) (int, bool) {
+/*ToFrequency returns the index of the frequency
+  string in the plan slices */
+func ToFrequency(s Frequency) (int, bool) {
 	switch s {
 	case WEEKLY:
 		return 0, true
@@ -58,10 +66,14 @@ func ToFrequency(s string) (int, bool) {
 	}
 }
 
+/*Frequency is an enum type wrapping string representations
+  of the frequency of subscriptions*/
 type Frequency string
 
-var Frequencies = [4]string{"WEEKLY", "BIWEEKLY", "TRIWEEKLY", "MONTHLY"}
+/*Frequencies are the string representations of Frequency*/
+var Frequencies = [4]Frequency{WEEKLY, BIWEEKLY, TRIWEEKLY, MONTHLY}
 
+/*Allowed Frequencies */
 const (
 	WEEKLY    = "WEEKLY"
 	BIWEEKLY  = "BIWEEKLY"

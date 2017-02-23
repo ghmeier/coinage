@@ -110,13 +110,12 @@ func TestGetCustomerSuccess(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
-	id := uuid.NewUUID()
 	c := &stripe.Customer{}
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
-			AddRow(id.String(), user.ID.String(), "customerID"))
+			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
 	res, err := customer.Get(user.ID)
@@ -131,7 +130,7 @@ func TestGetCustomerError(t *testing.T) {
 
 	user := getMockUser()
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnError(fmt.Errorf("some error"))
 
@@ -146,12 +145,11 @@ func TestGetCustomerStripeFail(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
-	id := uuid.NewUUID()
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
-			AddRow(id.String(), user.ID.String(), "customerID"))
+			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(nil, fmt.Errorf("some error"))
 
 	res, err := customer.Get(user.ID)
@@ -165,17 +163,16 @@ func TestSubscribeSuccess(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
-	id := uuid.NewUUID()
 	c := &stripe.Customer{}
 	plan := &models.Plan{
 		PlanIDs: []string{uuid.New()},
 	}
 	freq := models.Frequency(models.WEEKLY)
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
-			AddRow(id.String(), user.ID.String(), "customerID"))
+			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("Subscribe", "customerID", plan.PlanIDs[0]).Return(nil, nil)
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 	mocks.c.On("NewSubscription", m.AnythingOfType("*models.Subscription")).Return(nil, nil)
@@ -195,7 +192,7 @@ func TestSubscribeUserFail(t *testing.T) {
 	}
 	freq := models.Frequency(models.WEEKLY)
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnError(fmt.Errorf("some error"))
 	err := customer.Subscribe(user.ID, plan, freq)
@@ -208,17 +205,16 @@ func TestSubscribeFreqFail(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
-	id := uuid.NewUUID()
 	c := &stripe.Customer{}
 	plan := &models.Plan{
 		PlanIDs: []string{uuid.New()},
 	}
 	freq := models.Frequency("badstring")
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
-			AddRow(id.String(), user.ID.String(), "customerID"))
+			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
 	err := customer.Subscribe(user.ID, plan, freq)
@@ -231,17 +227,16 @@ func TestSubscribeFail(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
-	id := uuid.NewUUID()
 	c := &stripe.Customer{}
 	plan := &models.Plan{
 		PlanIDs: []string{uuid.New(), uuid.New()},
 	}
 	freq := models.Frequency(models.BIWEEKLY)
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
-			AddRow(id.String(), user.ID.String(), "customerID"))
+			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("Subscribe", "customerID", plan.PlanIDs[1]).Return(nil, fmt.Errorf("some error"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
@@ -255,14 +250,13 @@ func TestAddSourceSuccess(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
-	id := uuid.NewUUID()
 	token := "token"
 	c := &stripe.Customer{}
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
-			AddRow(id.String(), user.ID.String(), "customerID"))
+			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 	mocks.stripe.On("AddSource", "customerID", token).Return(nil, nil)
 
@@ -278,7 +272,7 @@ func TestAddSourceError(t *testing.T) {
 	user := getMockUser()
 	token := "token"
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnError(fmt.Errorf("some error"))
 
@@ -292,13 +286,12 @@ func TestDeleteSuccess(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
-	id := uuid.NewUUID()
 	c := &stripe.Customer{}
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
-			AddRow(id.String(), user.ID.String(), "customerID"))
+			AddRow(user.ID.String(), "customerID"))
 	mocks.sql.ExpectPrepare("DELETE FROM customer_account").
 		ExpectExec().
 		WithArgs(user.ID.String()).
@@ -317,7 +310,7 @@ func TestDeleteUserFail(t *testing.T) {
 
 	user := getMockUser()
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnError(fmt.Errorf("some error"))
 
@@ -331,13 +324,12 @@ func TestDeleteStripeFail(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
-	id := uuid.NewUUID()
 	c := &stripe.Customer{}
 
-	mocks.sql.ExpectQuery("SELECT id, userId, stripeCustomerId FROM customer_account").
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
-			AddRow(id.String(), user.ID.String(), "customerID"))
+			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 	mocks.stripe.On("DeleteCustomer", "customerID").Return(fmt.Errorf("some error"))
 
@@ -382,5 +374,5 @@ func getMockUser() *tmodels.User {
 }
 
 func getCustomerRows() sqlmock.Rows {
-	return sqlmock.NewRows([]string{"id", "userId", "stripeCustomerId"})
+	return sqlmock.NewRows([]string{"userId", "stripeCustomerId"})
 }

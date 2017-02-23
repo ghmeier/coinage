@@ -10,17 +10,27 @@ import (
 	"github.com/ghmeier/coinage/models"
 )
 
+/*CustomerI describes the customer handler interface*/
 type CustomerI interface {
+	/*New creates a new customer, sending it back on success*/
 	New(ctx *gin.Context)
+	/*View sends the customer with the given ID as a response*/
 	View(ctx *gin.Context)
+	/*View all sends a list of customers*/
 	ViewAll(ctx *gin.Context)
+	/*Delete removes the customer with the given ID*/
 	Delete(ctx *gin.Context)
+	/*UpdatePayment creates and sets a new default payment for the customer*/
 	UpdatePayment(ctx *gin.Context)
+	/*Subscribe creates a new subscription for the cusutomer*/
 	Subscribe(ctx *gin.Context)
+	/*Unsubscribe removes a sucbsription from a customer*/
 	Unsubscribe(ctx *gin.Context)
+	/*Time tracks the length of execution for each call in the handler*/
 	Time() gin.HandlerFunc
 }
 
+/*Customer implements CustomerI using stripe and coinage helpers*/
 type Customer struct {
 	*handlers.BaseHandler
 	Customer *helpers.Customer
@@ -28,6 +38,7 @@ type Customer struct {
 	Roaster  *helpers.Roaster
 }
 
+/*NewCustomer creates and returns a new customer using the given context*/
 func NewCustomer(ctx *handlers.GatewayContext) CustomerI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.customer"))
 	return &Customer{
@@ -38,6 +49,7 @@ func NewCustomer(ctx *handlers.GatewayContext) CustomerI {
 	}
 }
 
+/*New implements CustomerI.New*/
 func (c *Customer) New(ctx *gin.Context) {
 	var json models.CustomerRequest
 	err := ctx.BindJSON(&json)
@@ -64,10 +76,12 @@ func (c *Customer) New(ctx *gin.Context) {
 	c.Success(ctx, customer)
 }
 
+/*ViewAll implements CustomerI.ViewAll*/
 func (c *Customer) ViewAll(ctx *gin.Context) {
 	c.Success(ctx, nil)
 }
 
+/*View implments CustomerI.View*/
 func (c *Customer) View(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -85,6 +99,7 @@ func (c *Customer) View(ctx *gin.Context) {
 	c.Success(ctx, customer)
 }
 
+/*Subscribe implements CustomerI.Subscribe*/
 func (c *Customer) Subscribe(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var json models.SubscribeRequest
@@ -115,10 +130,12 @@ func (c *Customer) Subscribe(ctx *gin.Context) {
 	c.Success(ctx, nil)
 }
 
+/*Unsubscribe is not implemented*/
 func (c *Customer) Unsubscribe(ctx *gin.Context) {
 	c.Success(ctx, nil)
 }
 
+/*UpdatePayment implements CustomerI.UpdatePayment*/
 func (c *Customer) UpdatePayment(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -138,6 +155,7 @@ func (c *Customer) UpdatePayment(ctx *gin.Context) {
 	c.Success(ctx, nil)
 }
 
+/*Delete implements CustomerI.Delete*/
 func (c *Customer) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 

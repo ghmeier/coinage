@@ -13,22 +13,26 @@ import (
 	sub "github.com/yuderekyu/covenant/models"
 )
 
+/*Customer helps with creating and manipulating stripe customers*/
 type Customer struct {
-	*baseHelper
+	*base
 	Stripe   gateways.Stripe
 	Covenant c.Covenant
 	TC       t.TownCenterI
 }
 
+/*NewCustomer initializes a Customer with the given gateways*/
 func NewCustomer(sql g.SQL, stripe gateways.Stripe, tc t.TownCenterI, cov c.Covenant) *Customer {
 	return &Customer{
-		baseHelper: &baseHelper{sql: sql},
-		Covenant:   cov,
-		Stripe:     stripe,
-		TC:         tc,
+		base:     &base{sql: sql},
+		Covenant: cov,
+		Stripe:   stripe,
+		TC:       tc,
 	}
 }
 
+/*Insert creates a new stripe customer with the given id and token, inserting a record
+  into the db*/
 func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error) {
 	user, err := c.TC.GetUser(req.UserID)
 	if err != nil {
@@ -45,8 +49,7 @@ func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error)
 	}
 
 	customer := models.NewCustomer(req.UserID, customerID)
-	err = c.sql.Modify("INSERT INTO customer_account (id, userId, stripeCustomerId)VALUES(?,?,?)",
-		customer.ID,
+	err = c.sql.Modify("INSERT INTO customer_account (userId, stripeCustomerId)VALUES(?,?,?)",
 		customer.UserID,
 		customer.CustomerID)
 	if err != nil {
@@ -56,8 +59,9 @@ func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error)
 	return customer, nil
 }
 
+/*Get returns a customer associated with the given UserID*/
 func (c *Customer) Get(id uuid.UUID) (*models.Customer, error) {
-	rows, err := c.sql.Select("SELECT id, userId, stripeCustomerId FROM customer_account WHERE userId=?", id.String())
+	rows, err := c.sql.Select("SELECT userId, stripeCustomerId FROM customer_account WHERE userId=?", id.String())
 	if err != nil {
 		return nil, err
 	}
@@ -81,13 +85,14 @@ func (c *Customer) Get(id uuid.UUID) (*models.Customer, error) {
 	return customer, nil
 }
 
+/*Subscribe creates a new subscription to the provided plan at the given Frequency*/
 func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Frequency) error {
 	customer, err := c.Get(id)
 	if err != nil {
 		return err
 	}
 
-	interval, ok := models.ToFrequency(string(freq))
+	interval, ok := models.ToFrequency(freq)
 	if !ok {
 		return fmt.Errorf("ERROR: invalid frequency %s", freq)
 	}
@@ -105,6 +110,8 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 	return err
 }
 
+/*AddSource creates a new stripe source and sets it as default for the
+  given customer*/
 func (c *Customer) AddSource(id uuid.UUID, token string) error {
 	customer, err := c.Get(id)
 	if err != nil {
@@ -115,6 +122,7 @@ func (c *Customer) AddSource(id uuid.UUID, token string) error {
 	return err
 }
 
+/*Delete removes a customer from strip and the db*/
 func (c *Customer) Delete(id uuid.UUID) error {
 	customer, err := c.Get(id)
 	if err != nil {

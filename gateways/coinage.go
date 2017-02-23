@@ -11,7 +11,7 @@ import (
 	"github.com/ghmeier/coinage/models"
 )
 
-/* Coinage wraps all API calls to the coinage service*/
+/*Coinage wraps all API calls to the coinage service*/
 type Coinage interface {
 	NewRoaster(*models.RoasterRequest) (*models.Roaster, error)
 	Roaster(uuid.UUID) (*models.Roaster, error)
@@ -35,6 +35,8 @@ type coinage struct {
 	client *http.Client
 }
 
+/*NewCoinage initializes and returns a Coinage gateway pointing at the host and
+  port provided*/
 func NewCoinage(config config.Coinage) Coinage {
 
 	var url string
@@ -105,8 +107,8 @@ func (c *coinage) NewPlan(id uuid.UUID, req *models.PlanRequest) (*models.Plan, 
 	return &p, nil
 }
 
-func (c *coinage) Plan(id uuid.UUID, itemId uuid.UUID) (*models.Plan, error) {
-	url := fmt.Sprintf("%sroaster/%s/plan/%s", c.url, id.String(), itemId.String())
+func (c *coinage) Plan(id uuid.UUID, itemID uuid.UUID) (*models.Plan, error) {
+	url := fmt.Sprintf("%sroaster/%s/plan/%s", c.url, id.String(), itemID.String())
 
 	var p models.Plan
 	err := c.ServiceSend(http.MethodGet, url, nil, &p)
@@ -117,8 +119,8 @@ func (c *coinage) Plan(id uuid.UUID, itemId uuid.UUID) (*models.Plan, error) {
 	return &p, nil
 }
 
-func (c *coinage) DeletePlan(id uuid.UUID, itemId uuid.UUID) error {
-	url := fmt.Sprintf("%sroaster/%s", c.url, id.String(), itemId.String())
+func (c *coinage) DeletePlan(id uuid.UUID, itemID uuid.UUID) error {
+	url := fmt.Sprintf("%sroaster/%s/plan/%s", c.url, id.String(), itemID.String())
 
 	err := c.ServiceSend(http.MethodDelete, url, nil, nil)
 	if err != nil {

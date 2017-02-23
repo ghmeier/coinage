@@ -10,20 +10,29 @@ import (
 	"github.com/ghmeier/coinage/models"
 )
 
+/*PlanI describes the requests about billing plans that
+  can be handled*/
 type PlanI interface {
+	/*New creates a new plan associated with a given roaster*/
 	New(ctx *gin.Context)
+	/*view returns details a about all plans for a given roaster*/
 	View(ctx *gin.Context)
+	/*ViewAll returns a list of all available plans*/
 	ViewAll(ctx *gin.Context)
+	/*Update resets the plan information*/
 	Update(ctx *gin.Context)
+	/*Delete removes the plan*/
 	Delete(ctx *gin.Context)
 }
 
+/*Plan implements PlanI with coinage helpers*/
 type Plan struct {
 	*handlers.BaseHandler
 	Plan    *helpers.Plan
 	Roaster *helpers.Roaster
 }
 
+/*NewPlan initializes and returns a plan with the given gateways*/
 func NewPlan(ctx *handlers.GatewayContext) PlanI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.plan"))
 	return &Plan{
@@ -33,6 +42,7 @@ func NewPlan(ctx *handlers.GatewayContext) PlanI {
 	}
 }
 
+/*New implements PlanI.New*/
 func (p *Plan) New(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var json models.PlanRequest
@@ -62,6 +72,7 @@ func (p *Plan) New(ctx *gin.Context) {
 	p.Success(ctx, plan)
 }
 
+/*ViewAll implements PlanI.ViewAll*/
 func (p *Plan) ViewAll(ctx *gin.Context) {
 	id := ctx.Query("id")
 	offset, limit := p.GetPaging(ctx)
@@ -81,6 +92,7 @@ func (p *Plan) ViewAll(ctx *gin.Context) {
 	p.Success(ctx, plans)
 }
 
+/*View implements PlanI.View*/
 func (p *Plan) View(ctx *gin.Context) {
 	id := ctx.Param("id")
 	itemID := ctx.Param("itemId")
@@ -100,6 +112,7 @@ func (p *Plan) View(ctx *gin.Context) {
 	p.Success(ctx, plan)
 }
 
+/*Update implements PlanI.Update*/
 func (p *Plan) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	itemID := ctx.Param("itemId")
@@ -122,6 +135,7 @@ func (p *Plan) Update(ctx *gin.Context) {
 	p.Success(ctx, plan)
 }
 
+/*Delete implements PlanI.Delete*/
 func (p *Plan) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	pid := ctx.Param("pid")

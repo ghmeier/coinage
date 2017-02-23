@@ -27,10 +27,10 @@ func TestInsertPlanSuccess(t *testing.T) {
 	plans := getMockPlans()
 	req := getMockPlanRequest()
 
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.WEEKLY).Return(plans[0], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.BIWEEKLY).Return(plans[1], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.TRIWEEKLY).Return(plans[2], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.MONTHLY).Return(plans[3], nil)
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[0]).Return(plans[0], nil)
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[1]).Return(plans[1], nil)
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[2]).Return(plans[2], nil)
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[3]).Return(plans[3], nil)
 	mocks.sql.ExpectPrepare("INSERT INTO plan").
 		ExpectExec().
 		WillReturnResult(sqlmock.NewResult(1, 1))
@@ -50,10 +50,10 @@ func TestInsertPlanSQLFail(t *testing.T) {
 	plans := getMockPlans()
 	req := getMockPlanRequest()
 
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.WEEKLY).Return(plans[0], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.BIWEEKLY).Return(plans[1], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.TRIWEEKLY).Return(plans[2], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.MONTHLY).Return(plans[3], nil)
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[0]).Return(plans[0], nil)
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[1]).Return(plans[1], nil)
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[2]).Return(plans[2], nil)
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[3]).Return(plans[3], nil)
 	mocks.sql.ExpectPrepare("INSERT INTO plan").
 		ExpectExec().
 		WillReturnError(fmt.Errorf("some error"))
@@ -72,7 +72,7 @@ func TestInsertPlanStripeFail(t *testing.T) {
 	accountID := "accountID"
 	req := getMockPlanRequest()
 
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.WEEKLY).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[0]).Return(nil, fmt.Errorf("some error"))
 
 	c, err := p.Insert(id, accountID, req)
 

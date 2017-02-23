@@ -13,24 +13,27 @@ import (
 	t "github.com/jakelong95/TownCenter/models"
 )
 
-type baseHelper struct {
+type base struct {
 	sql g.SQL
 }
 
+/*Roaster helps with manipulating roaster properties*/
 type Roaster struct {
-	*baseHelper
+	*base
 	Stripe gateways.Stripe
 	TC     towncenter.TownCenterI
 }
 
+/*NewRoaster initializes and returns a roaster with the given gateways*/
 func NewRoaster(sql g.SQL, stripe gateways.Stripe, towncenter towncenter.TownCenterI) *Roaster {
 	return &Roaster{
-		baseHelper: &baseHelper{sql: sql},
-		Stripe:     stripe,
-		TC:         towncenter,
+		base:   &base{sql: sql},
+		Stripe: stripe,
+		TC:     towncenter,
 	}
 }
 
+/*Insert creates a new roaster's stripe information and adds a record to the db*/
 func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 	user, tRoaster, err := r.roaster(req.UserID)
 	if err != nil {
@@ -55,6 +58,7 @@ func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 	return roaster, nil
 }
 
+/*GetByUserID returns the roaster account associated with a user id*/
 func (r *Roaster) GetByUserID(id uuid.UUID) (*models.Roaster, error) {
 	_, roaster, err := r.roaster(id)
 	if err != nil {
@@ -64,6 +68,7 @@ func (r *Roaster) GetByUserID(id uuid.UUID) (*models.Roaster, error) {
 	return r.Get(roaster.ID)
 }
 
+/*Get returns the roaster account associated with the given id*/
 func (r *Roaster) Get(id uuid.UUID) (*models.Roaster, error) {
 	rows, err := r.sql.Select("SELECT id, stripeAccountId FROM roaster_account WHERE roasterId=?", id)
 	if err != nil {
@@ -74,7 +79,7 @@ func (r *Roaster) Get(id uuid.UUID) (*models.Roaster, error) {
 }
 
 func (r *Roaster) account(rows *sql.Rows) (*models.Roaster, error) {
-	roasters, _ := models.RoasterFromSql(rows)
+	roasters, _ := models.RoasterFromSQL(rows)
 	if len(roasters) < 1 {
 		return nil, nil
 	}

@@ -1,5 +1,6 @@
 package mocks
 
+import coinagemodels "github.com/ghmeier/coinage/models"
 import gateways "github.com/ghmeier/coinage/gateways"
 import mock "github.com/stretchr/testify/mock"
 import models "github.com/jakelong95/TownCenter/models"
@@ -162,11 +163,11 @@ func (_m *Stripe) NewCustomer(token string, userID string) (string, error) {
 }
 
 // NewPlan provides a mock function with given fields: id, item, freq
-func (_m *Stripe) NewPlan(id string, item *warehousemodels.Item, freq string) (*stripe.Plan, error) {
+func (_m *Stripe) NewPlan(id string, item *warehousemodels.Item, freq coinagemodels.Frequency) (*stripe.Plan, error) {
 	ret := _m.Called(id, item, freq)
 
 	var r0 *stripe.Plan
-	if rf, ok := ret.Get(0).(func(string, *warehousemodels.Item, string) *stripe.Plan); ok {
+	if rf, ok := ret.Get(0).(func(string, *warehousemodels.Item, coinagemodels.Frequency) *stripe.Plan); ok {
 		r0 = rf(id, item, freq)
 	} else {
 		if ret.Get(0) != nil {
@@ -175,7 +176,7 @@ func (_m *Stripe) NewPlan(id string, item *warehousemodels.Item, freq string) (*
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, *warehousemodels.Item, string) error); ok {
+	if rf, ok := ret.Get(1).(func(string, *warehousemodels.Item, coinagemodels.Frequency) error); ok {
 		r1 = rf(id, item, freq)
 	} else {
 		r1 = ret.Error(1)

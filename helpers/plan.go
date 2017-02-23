@@ -13,18 +13,21 @@ import (
 	item "github.com/lcollin/warehouse/models"
 )
 
+/*Plan manages retrieval and manipulating roaster plan information*/
 type Plan struct {
-	*baseHelper
+	*base
 	Stripe gateways.Stripe
 }
 
+/*NewPlan initializes and returns a plan with the given gateways*/
 func NewPlan(sql g.SQL, stripe gateways.Stripe) *Plan {
 	return &Plan{
-		baseHelper: &baseHelper{sql: sql},
-		Stripe:     stripe,
+		base:   &base{sql: sql},
+		Stripe: stripe,
 	}
 }
 
+/*Insert creates a new roaster plan in stripe and adds a record to the db*/
 func (p *Plan) Insert(id uuid.UUID, accountID string, req *models.PlanRequest) (*models.Plan, error) {
 
 	// TODO: get item from warehouse by id
@@ -56,6 +59,7 @@ func (p *Plan) Insert(id uuid.UUID, accountID string, req *models.PlanRequest) (
 	return plan, nil
 }
 
+/*GetByRoaster returns all plans associated with a roaster*/
 func (p *Plan) GetByRoaster(roaster *models.Roaster, offset int, limit int) ([]*models.Plan, error) {
 	rows, err := p.sql.Select("SELECT roasterId,itemId,planIds FROM plan WHERE roasterId=? ORDER BY itemId ASC LIMIT ?,?",
 		roaster.ID,
@@ -69,6 +73,7 @@ func (p *Plan) GetByRoaster(roaster *models.Roaster, offset int, limit int) ([]*
 	return p.plan(roaster.AccountID, rows)
 }
 
+/*Get returns a plan associated with a roaster and itemid*/
 func (p *Plan) Get(roaster *models.Roaster, itemID uuid.UUID) (*models.Plan, error) {
 	rows, err := p.sql.Select("SELECT roasterId,itemId,planIds FROM plan WHERE roasterId=? AND itemId=?",
 		roaster.ID,
@@ -111,7 +116,8 @@ func (p *Plan) plans(accountID string, ids []string) ([]*stripe.Plan, error) {
 	return plans, err
 }
 
-func (p *Plan) Update(id string, itemId uuid.UUID) (*models.Plan, error) {
+/*Update is not implemented*/
+func (p *Plan) Update(id string, itemID uuid.UUID) (*models.Plan, error) {
 	// err := p.sql.Modify("UPDATE plan SET roasterId=?,itemId=?,planIds=? WHERE itemId=?",
 	// 	plan.RoasterID,
 	// 	plan.ItemID,
@@ -120,6 +126,7 @@ func (p *Plan) Update(id string, itemId uuid.UUID) (*models.Plan, error) {
 	return nil, nil
 }
 
+/*Delete is not implemented*/
 func (p *Plan) Delete(id, planID string) error {
 	return nil
 }

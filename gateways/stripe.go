@@ -12,6 +12,7 @@ import (
 	item "github.com/lcollin/warehouse/models"
 )
 
+/*Stripe wraps the stripe-go api for coinage use*/
 type Stripe interface {
 	NewCustomer(token string, userID string) (string, error)
 	GetCustomer(id string) (*stripe.Customer, error)
@@ -19,18 +20,20 @@ type Stripe interface {
 	AddSource(id string, token string) (*stripe.Customer, error)
 	NewAccount(country string, user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	GetAccount(id string) (*stripe.Account, error)
-	NewPlan(id string, item *item.Item, freq string) (*stripe.Plan, error)
+	NewPlan(id string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
 	GetPlan(id string, pid string) (*stripe.Plan, error)
 	Subscribe(id string, planID string) (*stripe.Sub, error)
 }
 
-type StripeS struct {
+type stripeS struct {
 	config config.Stripe
 	c      *client.API
 }
 
+/*NewStripe initializes and returns a new Stripe implementation configured
+  by the provided config*/
 func NewStripe(config config.Stripe) Stripe {
-	s := &StripeS{
+	s := &stripeS{
 		config: config,
 		c:      client.New(config.Secret, nil),
 	}
@@ -38,7 +41,7 @@ func NewStripe(config config.Stripe) Stripe {
 	return s
 }
 
-func (s *StripeS) NewCustomer(token string, userID string) (string, error) {
+func (s *stripeS) NewCustomer(token string, userID string) (string, error) {
 	params := &stripe.CustomerParams{
 		Desc: fmt.Sprintf("Customer for user: %s", userID),
 	}
@@ -52,7 +55,7 @@ func (s *StripeS) NewCustomer(token string, userID string) (string, error) {
 }
 
 /*GetCustomer returns a stripe customer by their cutsomerID*/
-func (s *StripeS) GetCustomer(id string) (*stripe.Customer, error) {
+func (s *stripeS) GetCustomer(id string) (*stripe.Customer, error) {
 	c, err := s.c.Customers.Get(id, nil)
 	if err != nil {
 		return nil, err
@@ -62,13 +65,13 @@ func (s *StripeS) GetCustomer(id string) (*stripe.Customer, error) {
 }
 
 /*DeleteCustomer removes customer from stripe by customer id*/
-func (s *StripeS) DeleteCustomer(id string) error {
+func (s *stripeS) DeleteCustomer(id string) error {
 	_, err := s.c.Customers.Del(id)
 	return err
 }
 
 /*AddSource creates and adds a new Default Source for the customer*/
-func (s *StripeS) AddSource(id string, token string) (*stripe.Customer, error) {
+func (s *stripeS) AddSource(id string, token string) (*stripe.Customer, error) {
 	params := &stripe.CustomerParams{
 		Source: &stripe.SourceParams{Token: token},
 	}
@@ -81,7 +84,7 @@ func (s *StripeS) AddSource(id string, token string) (*stripe.Customer, error) {
 	return c, nil
 }
 
-func (s *StripeS) NewAccount(country string, user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error) {
+func (s *stripeS) NewAccount(country string, user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error) {
 	params := &stripe.AccountParams{
 		Managed:      true,
 		Country:      country,
@@ -119,7 +122,7 @@ func (s *StripeS) NewAccount(country string, user *tmodels.User, roaster *tmodel
 	return account, nil
 }
 
-func (s *StripeS) GetAccount(id string) (*stripe.Account, error) {
+func (s *stripeS) GetAccount(id string) (*stripe.Account, error) {
 	account, err := s.c.Account.GetByID(id, nil)
 	if err != nil {
 		return nil, err
@@ -128,8 +131,8 @@ func (s *StripeS) GetAccount(id string) (*stripe.Account, error) {
 	return account, nil
 }
 
-func (s *StripeS) NewPlan(id string, item *item.Item, freq string) (*stripe.Plan, error) {
-	interval, ok := models.ToFrequency(string(freq))
+func (s *stripeS) NewPlan(id string, item *item.Item, freq models.Frequency) (*stripe.Plan, error) {
+	interval, ok := models.ToFrequency(freq)
 	if !ok {
 		return nil, fmt.Errorf("ERROR: no frequency for interval %s", freq)
 	}
@@ -157,7 +160,7 @@ func (s *StripeS) NewPlan(id string, item *item.Item, freq string) (*stripe.Plan
 	return plan, nil
 }
 
-func (s *StripeS) GetPlan(id string, pid string) (*stripe.Plan, error) {
+func (s *stripeS) GetPlan(id string, pid string) (*stripe.Plan, error) {
 	account, err := s.GetAccount(id)
 	if err != nil {
 		return nil, err
@@ -172,7 +175,7 @@ func (s *StripeS) GetPlan(id string, pid string) (*stripe.Plan, error) {
 	return plan, nil
 }
 
-func (s *StripeS) Subscribe(id string, planID string) (*stripe.Sub, error) {
+func (s *stripeS) Subscribe(id string, planID string) (*stripe.Sub, error) {
 	sub, err := s.c.Subs.New(&stripe.SubParams{Customer: id, Plan: planID})
 	if err != nil {
 		return nil, err

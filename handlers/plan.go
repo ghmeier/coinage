@@ -23,6 +23,8 @@ type PlanI interface {
 	Update(ctx *gin.Context)
 	/*Delete removes the plan*/
 	Delete(ctx *gin.Context)
+	/*Time tracks the length of execution for each call in the handler*/
+	Time() gin.HandlerFunc
 }
 
 /*Plan implements PlanI with coinage helpers*/

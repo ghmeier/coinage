@@ -55,7 +55,7 @@ func TestInsertRoasterUserFail(t *testing.T) {
 	assert.Error(err)
 	assert.Nil(c)
 
-	user.IsRoaster = 0
+	user.RoasterId = nil
 	mocks.tc.On("GetUser", user.ID).Return(user, nil)
 	c, err = roaster.Insert(req)
 	assert.Error(err)
@@ -230,7 +230,6 @@ func getMockRUser() *tmodels.User {
 		"addressLine2", "addressCity",
 		"addressState", "addressZip",
 		"addressCountry")
-	u.IsRoaster = 1
 	u.RoasterId = uuid.NewUUID()
 	return u
 }

@@ -70,7 +70,7 @@ func (r *Roaster) GetByUserID(id uuid.UUID) (*models.Roaster, error) {
 
 /*Get returns the roaster account associated with the given id*/
 func (r *Roaster) Get(id uuid.UUID) (*models.Roaster, error) {
-	rows, err := r.sql.Select("SELECT id, stripeAccountId FROM roaster_account WHERE roasterId=?", id)
+	rows, err := r.sql.Select("SELECT id, stripeAccountId FROM roaster_account WHERE id=?", id)
 	if err != nil {
 		return nil, err
 	}

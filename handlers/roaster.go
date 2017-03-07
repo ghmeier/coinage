@@ -22,6 +22,8 @@ type RoasterI interface {
 	Deactivate(ctx *gin.Context)
 	/*Time tracks the duration of each handled request*/
 	Time() gin.HandlerFunc
+	/*GetJWT checks the JWT of a request*/
+	GetJWT() gin.HandlerFunc
 }
 
 /*Roaster implements RoasterI*/

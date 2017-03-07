@@ -28,6 +28,8 @@ type CustomerI interface {
 	Unsubscribe(ctx *gin.Context)
 	/*Time tracks the length of execution for each call in the handler*/
 	Time() gin.HandlerFunc
+	/*GetJWT checks the JWT of a request*/
+	GetJWT() gin.HandlerFunc
 }
 
 /*Customer implements CustomerI using stripe and coinage helpers*/

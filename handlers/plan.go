@@ -25,6 +25,8 @@ type PlanI interface {
 	Delete(ctx *gin.Context)
 	/*Time tracks the length of execution for each call in the handler*/
 	Time() gin.HandlerFunc
+	/*GetJWT checks the JWT of a request*/
+	GetJWT() gin.HandlerFunc
 }
 
 /*Plan implements PlanI with coinage helpers*/

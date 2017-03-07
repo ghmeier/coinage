@@ -64,6 +64,7 @@ func New(config *config.Root) (*Coinage, error) {
 	// id in this case is UserID
 	roaster := b.router.Group("/api/roaster")
 	{
+		roaster.Use(b.roaster.GetJWT())
 		roaster.Use(b.roaster.Time())
 		roaster.POST("", b.roaster.New)
 		roaster.GET("/:id", b.roaster.View)
@@ -71,6 +72,7 @@ func New(config *config.Root) (*Coinage, error) {
 		roaster.DELETE("/:id", b.roaster.Deactivate)
 		plan := roaster.Group("/:id/plan")
 		{
+			plan.Use(b.plan.GetJWT())
 			plan.Use(b.plan.Time())
 			plan.GET("", b.plan.ViewAll)
 			plan.POST("", b.plan.New)
@@ -81,6 +83,7 @@ func New(config *config.Root) (*Coinage, error) {
 	}
 	customer := b.router.Group("/api/customer")
 	{
+		customer.Use(b.customer.GetJWT())
 		customer.Use(b.customer.Time())
 		customer.POST("", b.customer.New)
 		customer.GET("", b.customer.ViewAll)

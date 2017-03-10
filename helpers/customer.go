@@ -34,6 +34,14 @@ func NewCustomer(sql g.SQL, stripe gateways.Stripe, tc t.TownCenterI, cov c.Cove
 /*Insert creates a new stripe customer with the given id and token, inserting a record
   into the db*/
 func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error) {
+	customer, err := c.Get(req.UserID)
+	if err != nil {
+		return nil, err
+	}
+	if customer != nil {
+		return c.AddSource(customer, req.Token)
+	}
+
 	user, err := c.TC.GetUser(req.UserID)
 	if err != nil {
 		return nil, err
@@ -48,7 +56,7 @@ func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error)
 		return nil, err
 	}
 
-	customer := models.NewCustomer(req.UserID, customerID)
+	customer = models.NewCustomer(req.UserID, customerID)
 	err = c.sql.Modify("INSERT INTO customer_account (userId, stripeCustomerId)VALUES(?,?,?)",
 		customer.UserID,
 		customer.CustomerID)
@@ -112,14 +120,9 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 
 /*AddSource creates a new stripe source and sets it as default for the
   given customer*/
-func (c *Customer) AddSource(id uuid.UUID, token string) error {
-	customer, err := c.Get(id)
-	if err != nil {
-		return err
-	}
-
-	_, err = c.Stripe.AddSource(customer.CustomerID, token)
-	return err
+func (c *Customer) AddSource(customer *models.Customer, token string) (*models.Customer, error) {
+	_, err := c.Stripe.AddSource(customer.CustomerID, token)
+	return customer, err
 }
 
 /*Delete removes a customer from strip and the db*/

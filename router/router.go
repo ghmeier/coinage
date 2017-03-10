@@ -88,7 +88,6 @@ func New(config *config.Root) (*Coinage, error) {
 		customer.POST("", b.customer.New)
 		customer.GET("", b.customer.ViewAll)
 		customer.GET("/:id", b.customer.View)
-		customer.POST("/:id/source", b.customer.UpdatePayment)
 		customer.POST("/:id/subscription", b.customer.Subscribe)
 		customer.DELETE("/:id/subscription/:pid", b.customer.Unsubscribe)
 		customer.DELETE("/:id", b.customer.Delete)

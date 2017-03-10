@@ -12,7 +12,7 @@ import (
 
 /*CustomerI describes the customer handler interface*/
 type CustomerI interface {
-	/*New creates a new customer, sending it back on success*/
+	/*New creates a new customer or updates the payment info, sending it back on success*/
 	New(ctx *gin.Context)
 	/*View sends the customer with the given ID as a response*/
 	View(ctx *gin.Context)
@@ -20,8 +20,6 @@ type CustomerI interface {
 	ViewAll(ctx *gin.Context)
 	/*Delete removes the customer with the given ID*/
 	Delete(ctx *gin.Context)
-	/*UpdatePayment creates and sets a new default payment for the customer*/
-	UpdatePayment(ctx *gin.Context)
 	/*Subscribe creates a new subscription for the cusutomer*/
 	Subscribe(ctx *gin.Context)
 	/*Unsubscribe removes a sucbsription from a customer*/
@@ -60,16 +58,7 @@ func (c *Customer) New(ctx *gin.Context) {
 		return
 	}
 
-	customer, err := c.Customer.Get(json.UserID)
-	if err == nil && customer != nil {
-		c.UserError(ctx, "ERROR: customer already exists", nil)
-		return
-	} else if err != nil {
-		c.ServerError(ctx, err, json)
-		return
-	}
-
-	customer, err = c.Customer.Insert(&json)
+	customer, err := c.Customer.Insert(&json)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return
@@ -134,26 +123,6 @@ func (c *Customer) Subscribe(ctx *gin.Context) {
 
 /*Unsubscribe is not implemented*/
 func (c *Customer) Unsubscribe(ctx *gin.Context) {
-	c.Success(ctx, nil)
-}
-
-/*UpdatePayment implements CustomerI.UpdatePayment*/
-func (c *Customer) UpdatePayment(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	var json models.CustomerRequest
-	err := ctx.BindJSON(&json)
-	if err != nil {
-		c.UserError(ctx, "ERROR: token is a required parameter", err)
-		return
-	}
-
-	err = c.Customer.AddSource(uuid.Parse(id), json.Token)
-	if err != nil {
-		c.ServerError(ctx, err, &gin.H{"id": id, "token": json.Token})
-		return
-	}
-
 	c.Success(ctx, nil)
 }
 

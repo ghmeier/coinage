@@ -28,6 +28,9 @@ func TestInsertCustomerSuccess(t *testing.T) {
 	user := getMockUser()
 	req := getMockCustomerRequest(user.ID)
 
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
+		WithArgs(user.ID.String()).
+		WillReturnRows(getCustomerRows())
 	mocks.tc.On("GetUser", user.ID).Return(user, nil)
 	mocks.stripe.On("NewCustomer", req.Token, req.UserID.String()).Return("customerID", nil)
 	mocks.sql.ExpectPrepare("INSERT INTO customer_account").
@@ -40,6 +43,46 @@ func TestInsertCustomerSuccess(t *testing.T) {
 	assert.NotNil(c)
 }
 
+func TestInsertExistingSuccess(t *testing.T) {
+	assert := assert.New(t)
+	mocks, customer := getMockCustomer()
+
+	user := getMockUser()
+	req := getMockCustomerRequest(user.ID)
+	cust := &models.Customer{
+		CustomerID: "customerID",
+		UserID:     user.ID,
+	}
+	c := &stripe.Customer{}
+
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
+		WithArgs(user.ID.String()).
+		WillReturnRows(getCustomerRows().
+			AddRow(user.ID.String(), cust.CustomerID))
+	mocks.stripe.On("GetCustomer", cust.CustomerID).Return(c, nil)
+	mocks.stripe.On("AddSource", cust.CustomerID, req.Token).Return(c, nil)
+
+	_, err := customer.Insert(req)
+
+	assert.NoError(err)
+}
+
+func TestInsertCustomerGetError(t *testing.T) {
+	assert := assert.New(t)
+	mocks, customer := getMockCustomer()
+
+	user := getMockUser()
+	req := getMockCustomerRequest(user.ID)
+
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
+		WithArgs(user.ID.String()).
+		WillReturnError(fmt.Errorf("some error"))
+
+	_, err := customer.Insert(req)
+
+	assert.Error(err)
+}
+
 func TestInsertCustomerUserError(t *testing.T) {
 	assert := assert.New(t)
 	mocks, customer := getMockCustomer()
@@ -47,6 +90,9 @@ func TestInsertCustomerUserError(t *testing.T) {
 	user := getMockUser()
 	req := getMockCustomerRequest(user.ID)
 
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
+		WithArgs(user.ID.String()).
+		WillReturnRows(getCustomerRows())
 	mocks.tc.On("GetUser", user.ID).Return(nil, fmt.Errorf("some error"))
 
 	c, err := customer.Insert(req)
@@ -62,6 +108,9 @@ func TestInsertCustomerUserNil(t *testing.T) {
 	user := getMockUser()
 	req := getMockCustomerRequest(user.ID)
 
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
+		WithArgs(user.ID.String()).
+		WillReturnRows(getCustomerRows())
 	mocks.tc.On("GetUser", user.ID).Return(nil, nil)
 
 	c, err := customer.Insert(req)
@@ -77,6 +126,9 @@ func TestInsertCustomerStripeError(t *testing.T) {
 	user := getMockUser()
 	req := getMockCustomerRequest(user.ID)
 
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
+		WithArgs(user.ID.String()).
+		WillReturnRows(getCustomerRows())
 	mocks.tc.On("GetUser", user.ID).Return(user, nil)
 	mocks.stripe.On("NewCustomer", req.Token, req.UserID.String()).Return("", fmt.Errorf("some error"))
 
@@ -93,6 +145,9 @@ func TestInsertCustomerError(t *testing.T) {
 	user := getMockUser()
 	req := getMockCustomerRequest(user.ID)
 
+	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
+		WithArgs(user.ID.String()).
+		WillReturnRows(getCustomerRows())
 	mocks.tc.On("GetUser", user.ID).Return(user, nil)
 	mocks.stripe.On("NewCustomer", req.Token, req.UserID.String()).Return("customerID", nil)
 	mocks.sql.ExpectPrepare("INSERT INTO customer_account").
@@ -241,42 +296,6 @@ func TestSubscribeFail(t *testing.T) {
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
 	err := customer.Subscribe(user.ID, plan, freq)
-
-	assert.Error(err)
-}
-
-func TestAddSourceSuccess(t *testing.T) {
-	assert := assert.New(t)
-	mocks, customer := getMockCustomer()
-
-	user := getMockUser()
-	token := "token"
-	c := &stripe.Customer{}
-
-	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
-		WithArgs(user.ID.String()).
-		WillReturnRows(getCustomerRows().
-			AddRow(user.ID.String(), "customerID"))
-	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
-	mocks.stripe.On("AddSource", "customerID", token).Return(nil, nil)
-
-	err := customer.AddSource(user.ID, token)
-
-	assert.NoError(err)
-}
-
-func TestAddSourceError(t *testing.T) {
-	assert := assert.New(t)
-	mocks, customer := getMockCustomer()
-
-	user := getMockUser()
-	token := "token"
-
-	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
-		WithArgs(user.ID.String()).
-		WillReturnError(fmt.Errorf("some error"))
-
-	err := customer.AddSource(user.ID, token)
 
 	assert.Error(err)
 }

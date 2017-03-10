@@ -51,12 +51,14 @@ func NewCustomer(ctx *handlers.GatewayContext) CustomerI {
 
 /*New implements CustomerI.New*/
 func (c *Customer) New(ctx *gin.Context) {
+	id := ctx.Param("id")
 	var json models.CustomerRequest
 	err := ctx.BindJSON(&json)
 	if err != nil {
 		c.UserError(ctx, "ERROR: unable to parse body", err.Error())
 		return
 	}
+	json.UserID = uuid.Parse(id)
 
 	customer, err := c.Customer.Insert(&json)
 	if err != nil {

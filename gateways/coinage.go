@@ -20,10 +20,9 @@ type Coinage interface {
 	NewPlan(uuid.UUID, *models.PlanRequest) (*models.Plan, error)
 	Plan(uuid.UUID, uuid.UUID) (*models.Plan, error)
 	DeletePlan(uuid.UUID, uuid.UUID) error
-	NewCustomer(*models.CustomerRequest) (*models.Customer, error)
+	AddOrUpdateCustomer(*models.CustomerRequest) (*models.Customer, error)
 	Customers(int, int) ([]*models.Customer, error)
 	Customer(uuid.UUID) (*models.Customer, error)
-	NewSource(uuid.UUID, *models.CustomerRequest) error
 	NewSubscription(uuid.UUID, *models.SubscribeRequest) error
 	DeleteSubscription(uuid.UUID, string) error
 	DeleteCustomer(uuid.UUID) error
@@ -130,8 +129,8 @@ func (c *coinage) DeletePlan(id uuid.UUID, itemID uuid.UUID) error {
 	return nil
 }
 
-func (c *coinage) NewCustomer(req *models.CustomerRequest) (*models.Customer, error) {
-	url := fmt.Sprintf("%scustomer", c.url)
+func (c *coinage) AddOrUpdateCustomer(req *models.CustomerRequest) (*models.Customer, error) {
+	url := fmt.Sprintf("%scustomer/%s", c.url, req.UserID)
 
 	var customer models.Customer
 	err := c.ServiceSend(http.MethodPost, url, req, &customer)
@@ -164,17 +163,6 @@ func (c *coinage) Customer(id uuid.UUID) (*models.Customer, error) {
 	}
 
 	return &customer, nil
-}
-
-func (c *coinage) NewSource(id uuid.UUID, req *models.CustomerRequest) error {
-	url := fmt.Sprintf("%scustomer/%s/source", c.url, id.String())
-
-	err := c.ServiceSend(http.MethodPost, url, req, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (c *coinage) NewSubscription(id uuid.UUID, req *models.SubscribeRequest) error {

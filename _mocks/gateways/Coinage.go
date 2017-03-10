@@ -10,6 +10,29 @@ type Coinage struct {
 	mock.Mock
 }
 
+// AddOrUpdateCustomer provides a mock function with given fields: _a0
+func (_m *Coinage) AddOrUpdateCustomer(_a0 *models.CustomerRequest) (*models.Customer, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *models.Customer
+	if rf, ok := ret.Get(0).(func(*models.CustomerRequest) *models.Customer); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Customer)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.CustomerRequest) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Customer provides a mock function with given fields: _a0
 func (_m *Coinage) Customer(_a0 uuid.UUID) (*models.Customer, error) {
 	ret := _m.Called(_a0)
@@ -112,29 +135,6 @@ func (_m *Coinage) DeleteSubscription(_a0 uuid.UUID, _a1 string) error {
 	return r0
 }
 
-// NewCustomer provides a mock function with given fields: _a0
-func (_m *Coinage) NewCustomer(_a0 *models.CustomerRequest) (*models.Customer, error) {
-	ret := _m.Called(_a0)
-
-	var r0 *models.Customer
-	if rf, ok := ret.Get(0).(func(*models.CustomerRequest) *models.Customer); ok {
-		r0 = rf(_a0)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Customer)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.CustomerRequest) error); ok {
-		r1 = rf(_a0)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // NewPlan provides a mock function with given fields: _a0, _a1
 func (_m *Coinage) NewPlan(_a0 uuid.UUID, _a1 *models.PlanRequest) (*models.Plan, error) {
 	ret := _m.Called(_a0, _a1)
@@ -179,20 +179,6 @@ func (_m *Coinage) NewRoaster(_a0 *models.RoasterRequest) (*models.Roaster, erro
 	}
 
 	return r0, r1
-}
-
-// NewSource provides a mock function with given fields: _a0, _a1
-func (_m *Coinage) NewSource(_a0 uuid.UUID, _a1 *models.CustomerRequest) error {
-	ret := _m.Called(_a0, _a1)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(uuid.UUID, *models.CustomerRequest) error); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 // NewSubscription provides a mock function with given fields: _a0, _a1

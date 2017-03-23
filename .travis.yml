@@ -1,7 +1,7 @@
 language: go
 sudo: required
 go:
-  - tip
+  - master
 services:
   - docker
 before_install:

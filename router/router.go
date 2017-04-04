@@ -12,7 +12,6 @@ import (
 	"github.com/ghmeier/coinage/gateways"
 	"github.com/ghmeier/coinage/handlers"
 	towncenter "github.com/jakelong95/TownCenter/gateways"
-	covenant "github.com/yuderekyu/covenant/gateways"
 )
 
 /*Coinage has all the handlers, and routing for the billing microzervice
@@ -43,14 +42,12 @@ func New(config *config.Root) (*Coinage, error) {
 
 	stripe := gateways.NewStripe(config.Stripe)
 	towncenter := towncenter.NewTownCenter(config.TownCenter)
-	covenant := covenant.NewCovenant(config.Covenant)
 
 	ctx := &h.GatewayContext{
 		Sql:        sql,
 		Stats:      stats,
 		Stripe:     stripe,
 		TownCenter: towncenter,
-		Covenant:   covenant,
 	}
 
 	b := &Coinage{

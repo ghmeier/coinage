@@ -9,7 +9,6 @@ import (
 	"github.com/ghmeier/coinage/models"
 	tmocks "github.com/jakelong95/TownCenter/_mocks"
 	tmodels "github.com/jakelong95/TownCenter/models"
-	cmocks "github.com/yuderekyu/covenant/_mocks/gateways"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/pborman/uuid"
@@ -203,7 +202,6 @@ func getMockRHelper() (*mockContext, *Roaster) {
 		sql:    mock,
 		stripe: &mocks.Stripe{},
 		tc:     &tmocks.TownCenterI{},
-		c:      &cmocks.Covenant{},
 	}
 	return mocks, NewRoaster(&bgateways.MySQL{DB: s}, mocks.stripe, mocks.tc)
 }

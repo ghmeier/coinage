@@ -9,25 +9,21 @@ import (
 	"github.com/ghmeier/coinage/gateways"
 	"github.com/ghmeier/coinage/models"
 	t "github.com/jakelong95/TownCenter/gateways"
-	c "github.com/yuderekyu/covenant/gateways"
-	sub "github.com/yuderekyu/covenant/models"
 )
 
 /*Customer helps with creating and manipulating stripe customers*/
 type Customer struct {
 	*base
-	Stripe   gateways.Stripe
-	Covenant c.Covenant
-	TC       t.TownCenterI
+	Stripe gateways.Stripe
+	TC     t.TownCenterI
 }
 
 /*NewCustomer initializes a Customer with the given gateways*/
-func NewCustomer(sql g.SQL, stripe gateways.Stripe, tc t.TownCenterI, cov c.Covenant) *Customer {
+func NewCustomer(sql g.SQL, stripe gateways.Stripe, tc t.TownCenterI) *Customer {
 	return &Customer{
-		base:     &base{sql: sql},
-		Covenant: cov,
-		Stripe:   stripe,
-		TC:       tc,
+		base:   &base{sql: sql},
+		Stripe: stripe,
+		TC:     tc,
 	}
 }
 
@@ -93,7 +89,7 @@ func (c *Customer) Get(id uuid.UUID) (*models.Customer, error) {
 	return customer, nil
 }
 
-/*Subscribe creates a new subscription to the provided plan at the given Frequency*/
+/*Subscribe creates a new subscription to the provided plan at the given Frequency in stripe*/
 func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Frequency) error {
 	customer, err := c.Get(id)
 	if err != nil {
@@ -108,13 +104,6 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 	stripe := plan.PlanIDs[interval]
 
 	_, err = c.Stripe.Subscribe(customer.CustomerID, stripe)
-	if err != nil {
-		return err
-	}
-
-	subscription := sub.NewSubscription(id, string(freq), plan.RoasterID, plan.ItemID)
-	_, err = c.Covenant.NewSubscription(subscription)
-
 	return err
 }
 

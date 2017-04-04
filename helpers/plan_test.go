@@ -10,7 +10,6 @@ import (
 	"github.com/ghmeier/coinage/models"
 	tmocks "github.com/jakelong95/TownCenter/_mocks"
 	item "github.com/lcollin/warehouse/models"
-	cmocks "github.com/yuderekyu/covenant/_mocks/gateways"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/pborman/uuid"
@@ -201,7 +200,6 @@ func getMockPHelper() (*mockContext, *Plan) {
 		sql:    mock,
 		stripe: &mocks.Stripe{},
 		tc:     &tmocks.TownCenterI{},
-		c:      &cmocks.Covenant{},
 	}
 	return mocks, NewPlan(&bgateways.MySQL{DB: s}, mocks.stripe)
 }

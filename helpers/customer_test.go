@@ -7,17 +7,13 @@ import (
 
 	bgateways "github.com/ghmeier/bloodlines/gateways"
 	mocks "github.com/ghmeier/coinage/_mocks/gateways"
+	"github.com/ghmeier/coinage/models"
 	tmocks "github.com/jakelong95/TownCenter/_mocks"
 	tmodels "github.com/jakelong95/TownCenter/models"
-	//"github.com/ghmeier/coinage/gateways"
-	"github.com/ghmeier/coinage/models"
-	cmocks "github.com/yuderekyu/covenant/_mocks/gateways"
-	//cmodels "github.com/yuderekyu/covenant/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/pborman/uuid"
 	"github.com/stretchr/testify/assert"
-	m "github.com/stretchr/testify/mock"
 	"github.com/stripe/stripe-go"
 )
 
@@ -230,7 +226,6 @@ func TestSubscribeSuccess(t *testing.T) {
 			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("Subscribe", "customerID", plan.PlanIDs[0]).Return(nil, nil)
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
-	mocks.c.On("NewSubscription", m.AnythingOfType("*models.Subscription")).Return(nil, nil)
 
 	err := customer.Subscribe(user.ID, plan, freq)
 
@@ -361,7 +356,6 @@ type mockContext struct {
 	sql    sqlmock.Sqlmock
 	stripe *mocks.Stripe
 	tc     *tmocks.TownCenterI
-	c      *cmocks.Covenant
 }
 
 func getMockCustomer() (*mockContext, *Customer) {
@@ -370,9 +364,8 @@ func getMockCustomer() (*mockContext, *Customer) {
 		sql:    mock,
 		stripe: &mocks.Stripe{},
 		tc:     &tmocks.TownCenterI{},
-		c:      &cmocks.Covenant{},
 	}
-	return mocks, NewCustomer(&bgateways.MySQL{DB: s}, mocks.stripe, mocks.tc, mocks.c)
+	return mocks, NewCustomer(&bgateways.MySQL{DB: s}, mocks.stripe, mocks.tc)
 }
 
 func getMockCustomerRequest(id uuid.UUID) *models.CustomerRequest {

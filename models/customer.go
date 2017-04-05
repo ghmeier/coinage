@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+
 	"github.com/stripe/stripe-go"
 
 	"github.com/pborman/uuid"
@@ -38,6 +39,15 @@ func NewCustomer(userID uuid.UUID, id string) *Customer {
 	return &Customer{
 		UserID:     userID,
 		CustomerID: id,
+	}
+}
+
+/*NewSubscribeRequest creates a new SubscribeRequest*/
+func NewSubscribeRequest(roasterID uuid.UUID, itemID uuid.UUID, frequency Frequency) *SubscribeRequest {
+	return &SubscribeRequest{
+		RoasterID: roasterID,
+		ItemID:    itemID,
+		Frequency: frequency,
 	}
 }
 

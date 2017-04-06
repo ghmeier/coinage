@@ -39,14 +39,14 @@ func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 	if err != nil {
 		return nil, err
 	}
-	stripe, err := r.Stripe.NewAccount(req.Country, user, tRoaster)
+	stripe, err := r.Stripe.NewAccount(user, tRoaster)
 	if err != nil {
 		return nil, err
 	}
 
 	roaster := models.NewRoaster(tRoaster.ID, stripe.ID)
 	err = r.sql.Modify(
-		"INSERT INTO roaster_account (id, stripeAccountId)VALUE(?, ?, ?)",
+		"INSERT INTO roaster_account (id, stripeAccountId)VALUE(?, ?)",
 		roaster.ID,
 		roaster.AccountID,
 	)

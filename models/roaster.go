@@ -19,8 +19,7 @@ type Roaster struct {
 /*RoasterRequest has information used in creating a roaster
   managed account in stripe*/
 type RoasterRequest struct {
-	UserID  uuid.UUID `json:"userId" binding:"required"`
-	Country string    `json:"country" binding:"required"`
+	UserID uuid.UUID `json:"userId" binding:"required"`
 	/* TODO: more info as we need it */
 }
 

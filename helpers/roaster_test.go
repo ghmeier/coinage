@@ -26,7 +26,7 @@ func TestInsertRoasterSuccess(t *testing.T) {
 
 	mocks.tc.On("GetUser", user.ID).Return(user, nil)
 	mocks.tc.On("GetRoaster", r.ID).Return(r, nil)
-	mocks.stripe.On("NewAccount", req.Country, user, r).Return(&stripe.Account{ID: "stripeID"}, nil)
+	mocks.stripe.On("NewAccount", user, r).Return(&stripe.Account{ID: "stripeID"}, nil)
 	mocks.sql.ExpectPrepare("INSERT INTO roaster_account").
 		ExpectExec().
 		WillReturnResult(sqlmock.NewResult(1, 1))
@@ -95,7 +95,7 @@ func TestInsertRoasterStripeFail(t *testing.T) {
 
 	mocks.tc.On("GetUser", user.ID).Return(user, nil)
 	mocks.tc.On("GetRoaster", r.ID).Return(r, nil)
-	mocks.stripe.On("NewAccount", req.Country, user, r).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("NewAccount", user, r).Return(nil, fmt.Errorf("some error"))
 
 	c, err := roaster.Insert(req)
 
@@ -113,7 +113,7 @@ func TestInsertRoasterSQLFail(t *testing.T) {
 
 	mocks.tc.On("GetUser", user.ID).Return(user, nil)
 	mocks.tc.On("GetRoaster", r.ID).Return(r, nil)
-	mocks.stripe.On("NewAccount", req.Country, user, r).Return(&stripe.Account{ID: "stripeID"}, nil)
+	mocks.stripe.On("NewAccount", user, r).Return(&stripe.Account{ID: "stripeID"}, nil)
 	mocks.sql.ExpectPrepare("INSERT INTO roater_account").
 		ExpectExec().
 		WillReturnError(fmt.Errorf("some error"))
@@ -215,8 +215,7 @@ func getMockRoasterAccount(id uuid.UUID) *models.Roaster {
 
 func getMockRoasterRequest(id uuid.UUID) *models.RoasterRequest {
 	return &models.RoasterRequest{
-		Country: "US",
-		UserID:  id,
+		UserID: id,
 	}
 }
 

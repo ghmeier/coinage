@@ -18,7 +18,7 @@ type Stripe interface {
 	GetCustomer(id string) (*stripe.Customer, error)
 	DeleteCustomer(id string) error
 	AddSource(id string, token string) (*stripe.Customer, error)
-	NewAccount(country string, user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
+	NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	GetAccount(id string) (*stripe.Account, error)
 	NewPlan(id string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
 	GetPlan(id string, pid string) (*stripe.Plan, error)
@@ -84,16 +84,16 @@ func (s *stripeS) AddSource(id string, token string) (*stripe.Customer, error) {
 	return c, nil
 }
 
-func (s *stripeS) NewAccount(country string, user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error) {
+func (s *stripeS) NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error) {
 	params := &stripe.AccountParams{
 		Managed:      true,
-		Country:      country,
+		Country:      "US",
 		Email:        roaster.Email,
 		BusinessName: roaster.Name,
 		LegalEntity: &stripe.LegalEntity{
 			Address: stripe.Address{
 				City:    roaster.AddressCity,
-				Country: roaster.AddressCountry,
+				Country: "US",
 				Line1:   roaster.AddressLine1,
 				Line2:   roaster.AddressLine2,
 				Zip:     roaster.AddressZip,
@@ -101,7 +101,7 @@ func (s *stripeS) NewAccount(country string, user *tmodels.User, roaster *tmodel
 			},
 			PersonalAddress: stripe.Address{
 				City:    user.AddressCity,
-				Country: user.AddressCountry,
+				Country: "US",
 				Line1:   user.AddressLine1,
 				Line2:   user.AddressLine2,
 				Zip:     user.AddressZip,
@@ -110,7 +110,7 @@ func (s *stripeS) NewAccount(country string, user *tmodels.User, roaster *tmodel
 			First:       user.FirstName,
 			Last:        user.LastName,
 			PhoneNumber: roaster.Phone,
-			Type:        "country",
+			Type:        "company",
 		},
 	}
 

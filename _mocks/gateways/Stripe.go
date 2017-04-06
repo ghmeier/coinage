@@ -118,13 +118,13 @@ func (_m *Stripe) GetPlan(id string, pid string) (*stripe.Plan, error) {
 	return r0, r1
 }
 
-// NewAccount provides a mock function with given fields: country, user, roaster
-func (_m *Stripe) NewAccount(country string, user *models.User, roaster *models.Roaster) (*stripe.Account, error) {
-	ret := _m.Called(country, user, roaster)
+// NewAccount provides a mock function with given fields: user, roaster
+func (_m *Stripe) NewAccount(user *models.User, roaster *models.Roaster) (*stripe.Account, error) {
+	ret := _m.Called(user, roaster)
 
 	var r0 *stripe.Account
-	if rf, ok := ret.Get(0).(func(string, *models.User, *models.Roaster) *stripe.Account); ok {
-		r0 = rf(country, user, roaster)
+	if rf, ok := ret.Get(0).(func(*models.User, *models.Roaster) *stripe.Account); ok {
+		r0 = rf(user, roaster)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*stripe.Account)
@@ -132,8 +132,8 @@ func (_m *Stripe) NewAccount(country string, user *models.User, roaster *models.
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, *models.User, *models.Roaster) error); ok {
-		r1 = rf(country, user, roaster)
+	if rf, ok := ret.Get(1).(func(*models.User, *models.Roaster) error); ok {
+		r1 = rf(user, roaster)
 	} else {
 		r1 = ret.Error(1)
 	}

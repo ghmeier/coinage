@@ -26,7 +26,7 @@ type RoasterRequest struct {
 /*NewRoaster initialized and returns a roaster model*/
 func NewRoaster(id uuid.UUID, accountID string) *Roaster {
 	return &Roaster{
-		ID:        uuid.NewUUID(),
+		ID:        id,
 		AccountID: accountID,
 	}
 }

@@ -91,6 +91,7 @@ func (s *stripeS) NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*str
 		Email:        roaster.Email,
 		BusinessName: roaster.Name,
 		LegalEntity: &stripe.LegalEntity{
+			BusinessName: roaster.Name,
 			Address: stripe.Address{
 				City:    roaster.AddressCity,
 				Country: "US",

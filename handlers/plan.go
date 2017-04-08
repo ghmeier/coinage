@@ -40,7 +40,7 @@ type Plan struct {
 func NewPlan(ctx *handlers.GatewayContext) PlanI {
 	stats := ctx.Stats.Clone(statsd.Prefix("api.plan"))
 	return &Plan{
-		Plan:        helpers.NewPlan(ctx.Sql, ctx.Stripe),
+		Plan:        helpers.NewPlan(ctx.Sql, ctx.Stripe, ctx.Warehouse),
 		Roaster:     helpers.NewRoaster(ctx.Sql, ctx.Stripe, ctx.TownCenter),
 		BaseHandler: &handlers.BaseHandler{Stats: stats},
 	}

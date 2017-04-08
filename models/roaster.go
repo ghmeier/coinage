@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/pborman/uuid"
-	"github.com/stripe/stripe-go"
 )
 
 /*Roaster has information retrieved from stripe and the db
@@ -13,9 +12,8 @@ type Roaster struct {
 	//ID is the roaster ID in towncenter
 	ID          uuid.UUID `json:"id"`
 	AccountID   string    `json:"stripeAccountId"`
-	Secret      string
-	Publishable string
-	Account     *stripe.Account `json:"account"`
+	Secret      string    `json:"secret"`
+	Publishable string    `json:"publishable"`
 }
 
 /*RoasterRequest has information used in creating a roaster

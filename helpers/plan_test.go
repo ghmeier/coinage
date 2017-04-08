@@ -9,6 +9,7 @@ import (
 	mocks "github.com/ghmeier/coinage/_mocks/gateways"
 	"github.com/ghmeier/coinage/models"
 	tmocks "github.com/jakelong95/TownCenter/_mocks"
+	wmocks "github.com/lcollin/warehouse/_mocks/gateways"
 	item "github.com/lcollin/warehouse/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -24,11 +25,13 @@ func TestInsertPlanSuccess(t *testing.T) {
 	roast := getMockCRoaster()
 	plans := getMockPlans()
 	req := getMockPlanRequest()
+	i := getMockItem(req.ItemID)
 
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[0]).Return(plans[0], nil)
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[1]).Return(plans[1], nil)
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[2]).Return(plans[2], nil)
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[3]).Return(plans[3], nil)
+	mocks.warehouse.On("GetItemByID", i.ID).Return(i, nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[4]).Return(plans[0], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[1]).Return(plans[1], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[2]).Return(plans[2], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[3]).Return(plans[3], nil)
 	mocks.sql.ExpectPrepare("INSERT INTO plan").
 		ExpectExec().
 		WillReturnResult(sqlmock.NewResult(1, 1))
@@ -46,11 +49,13 @@ func TestInsertPlanSQLFail(t *testing.T) {
 	roast := getMockCRoaster()
 	plans := getMockPlans()
 	req := getMockPlanRequest()
+	i := getMockItem(req.ItemID)
 
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[0]).Return(plans[0], nil)
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[1]).Return(plans[1], nil)
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[2]).Return(plans[2], nil)
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[3]).Return(plans[3], nil)
+	mocks.warehouse.On("GetItemByID", i.ID).Return(i, nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[4]).Return(plans[0], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[1]).Return(plans[1], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[2]).Return(plans[2], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[3]).Return(plans[3], nil)
 	mocks.sql.ExpectPrepare("INSERT INTO plan").
 		ExpectExec().
 		WillReturnError(fmt.Errorf("some error"))
@@ -67,8 +72,10 @@ func TestInsertPlanStripeFail(t *testing.T) {
 
 	roast := getMockCRoaster()
 	req := getMockPlanRequest()
+	i := getMockItem(req.ItemID)
 
-	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[0]).Return(nil, fmt.Errorf("some error"))
+	mocks.warehouse.On("GetItemByID", i.ID).Return(i, nil)
+	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[1]).Return(nil, fmt.Errorf("some error"))
 
 	c, err := p.Insert(roast, req)
 
@@ -85,7 +92,9 @@ func TestGetPlanSuccess(t *testing.T) {
 	plan := getMockPlan(roast.ID)
 
 	req := getMockPlanRequest()
+	i := getMockItem(req.ItemID)
 
+	mocks.warehouse.On("GetItemByID", i.ID).Return(i, nil)
 	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[0]).Return(plans[0], nil)
 	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[1]).Return(plans[1], nil)
 	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[2]).Return(plans[2], nil)
@@ -111,29 +120,6 @@ func TestGetPlanSQLFail(t *testing.T) {
 		WillReturnError(fmt.Errorf("some error"))
 
 	c, err := p.Get(roaster, req.ItemID)
-
-	assert.Error(err)
-	assert.Nil(c)
-}
-
-func TestGetPlanStripeFail(t *testing.T) {
-	assert := assert.New(t)
-	mocks, p := getMockPHelper()
-
-	roast := getMockCRoaster()
-	plan := getMockPlan(roast.ID)
-
-	req := getMockPlanRequest()
-
-	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[0]).Return(nil, fmt.Errorf("some error"))
-	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[1]).Return(nil, fmt.Errorf("some error"))
-	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[2]).Return(nil, fmt.Errorf("some error"))
-	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[3]).Return(nil, fmt.Errorf("some error"))
-	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
-		WillReturnRows(getPlanRows().
-			AddRow(roast.ID.String(), req.ItemID.String(), strings.Join(plan.PlanIDs, ",")))
-
-	c, err := p.Get(roast, req.ItemID)
 
 	assert.Error(err)
 	assert.Nil(c)
@@ -184,11 +170,12 @@ func TestGetPlanByRoasterFail(t *testing.T) {
 func getMockPHelper() (*mockContext, *Plan) {
 	s, mock, _ := sqlmock.New()
 	mocks := &mockContext{
-		sql:    mock,
-		stripe: &mocks.Stripe{},
-		tc:     &tmocks.TownCenterI{},
+		sql:       mock,
+		stripe:    &mocks.Stripe{},
+		tc:        &tmocks.TownCenterI{},
+		warehouse: &wmocks.Warehouse{},
 	}
-	return mocks, NewPlan(&bgateways.MySQL{DB: s}, mocks.stripe)
+	return mocks, NewPlan(&bgateways.MySQL{DB: s}, mocks.stripe, mocks.warehouse)
 }
 
 func getMockPlan(id uuid.UUID) *models.Plan {
@@ -211,6 +198,14 @@ func getMockCRoaster() *models.Roaster {
 func getMockPlanRequest() *models.PlanRequest {
 	return &models.PlanRequest{
 		ItemID: uuid.NewUUID(),
+	}
+}
+
+func getMockItem(id uuid.UUID) *item.Item {
+	return &item.Item{
+		ID:            id,
+		Name:          "test",
+		ConsumerPrice: 1.50,
 	}
 }
 

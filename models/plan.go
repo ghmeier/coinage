@@ -5,15 +5,13 @@ import (
 	"strings"
 
 	"github.com/pborman/uuid"
-	"github.com/stripe/stripe-go"
 )
 
 /*Plan stores stripe information for a roaster's items*/
 type Plan struct {
-	RoasterID uuid.UUID      `json:"roasterId"`
-	ItemID    uuid.UUID      `json:"itemId"`
-	PlanIDs   []string       `json:"planIds"`
-	Plans     []*stripe.Plan `json:"plans"`
+	RoasterID uuid.UUID `json:"roasterId"`
+	ItemID    uuid.UUID `json:"itemId"`
+	PlanIDs   []string  `json:"planIds"`
 }
 
 /*PlanRequest contains the information for creating a
@@ -54,15 +52,15 @@ func PlanFromSQL(rows *sql.Rows) ([]*Plan, error) {
 func ToFrequency(s Frequency) (int, bool) {
 	switch s {
 	case WEEKLY:
-		return 0, true
-	case BIWEEKLY:
 		return 1, true
-	case TRIWEEKLY:
+	case BIWEEKLY:
 		return 2, true
-	case MONTHLY:
+	case TRIWEEKLY:
 		return 3, true
+	case MONTHLY:
+		return 4, true
 	default:
-		return -1, false
+		return 0, false
 	}
 }
 
@@ -71,10 +69,11 @@ func ToFrequency(s Frequency) (int, bool) {
 type Frequency string
 
 /*Frequencies are the string representations of Frequency*/
-var Frequencies = [4]Frequency{WEEKLY, BIWEEKLY, TRIWEEKLY, MONTHLY}
+var Frequencies = [5]Frequency{INVALID, WEEKLY, BIWEEKLY, TRIWEEKLY, MONTHLY}
 
 /*Allowed Frequencies */
 const (
+	INVALID   = "INVALID"
 	WEEKLY    = "WEEKLY"
 	BIWEEKLY  = "BIWEEKLY"
 	TRIWEEKLY = "TRIWEEKLY"

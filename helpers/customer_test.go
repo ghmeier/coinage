@@ -10,6 +10,7 @@ import (
 	"github.com/ghmeier/coinage/models"
 	tmocks "github.com/jakelong95/TownCenter/_mocks"
 	tmodels "github.com/jakelong95/TownCenter/models"
+	wmocks "github.com/lcollin/warehouse/_mocks/gateways"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/pborman/uuid"
@@ -191,24 +192,6 @@ func TestGetCustomerError(t *testing.T) {
 	assert.Nil(res)
 }
 
-func TestGetCustomerStripeFail(t *testing.T) {
-	assert := assert.New(t)
-	mocks, customer := getMockCustomer()
-
-	user := getMockUser()
-
-	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
-		WithArgs(user.ID.String()).
-		WillReturnRows(getCustomerRows().
-			AddRow(user.ID.String(), "customerID"))
-	mocks.stripe.On("GetCustomer", "customerID").Return(nil, fmt.Errorf("some error"))
-
-	res, err := customer.Get(user.ID)
-
-	assert.Error(err)
-	assert.Nil(res)
-}
-
 func TestSubscribeSuccess(t *testing.T) {
 	assert := assert.New(t)
 	mocks, customer := getMockCustomer()
@@ -353,9 +336,10 @@ func TestDeleteStripeFail(t *testing.T) {
 }
 
 type mockContext struct {
-	sql    sqlmock.Sqlmock
-	stripe *mocks.Stripe
-	tc     *tmocks.TownCenterI
+	sql       sqlmock.Sqlmock
+	stripe    *mocks.Stripe
+	tc        *tmocks.TownCenterI
+	warehouse *wmocks.Warehouse
 }
 
 func getMockCustomer() (*mockContext, *Customer) {

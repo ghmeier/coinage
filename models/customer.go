@@ -3,18 +3,13 @@ package models
 import (
 	"database/sql"
 
-	"github.com/stripe/stripe-go"
-
 	"github.com/pborman/uuid"
 )
 
 /*Customer is the stripe customer data connected to a userID*/
 type Customer struct {
-	UserID        uuid.UUID          `json:"userId"`
-	CustomerID    string             `json:"stripeCustomerId"`
-	Subscriptions *stripe.SubList    `json:"subscriptions"`
-	Sources       *stripe.SourceList `json:"sources"`
-	Meta          map[string]string  `json:"metadata"`
+	UserID     uuid.UUID `json:"userId"`
+	CustomerID string    `json:"stripeCustomerId"`
 	// SourceID       string    `json:"stripeCardId"`
 	// SubscriptionID string `json:"stripeSubscriptionId"`
 	// PlanID         string `json:"stripePlanId"`

@@ -130,12 +130,12 @@ func (s *stripeS) NewPlan(secret string, item *item.Item, freq models.Frequency)
 
 	client := client.New(secret, nil)
 	plan, err := client.Plans.New(&stripe.PlanParams{
-		ID:            item.ID.String(),
+		ID:            fmt.Sprintf("%s-%s", item.ID.String(), string(freq)),
 		Amount:        uint64(item.ConsumerPrice * 100),
 		Currency:      "usd",
 		Interval:      "week",
 		IntervalCount: uint64(interval),
-		Name:          item.Name,
+		Name:          fmt.Sprintf("%s %s", item.Name, string(freq)),
 		Statement:     fmt.Sprintf("Expresso %s", item.Name),
 	})
 

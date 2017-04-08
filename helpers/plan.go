@@ -10,47 +10,47 @@ import (
 	g "github.com/ghmeier/bloodlines/gateways"
 	"github.com/ghmeier/coinage/gateways"
 	"github.com/ghmeier/coinage/models"
-	item "github.com/lcollin/warehouse/models"
+	w "github.com/lcollin/warehouse/gateways"
+	//item "github.com/lcollin/warehouse/models"
 )
 
 /*Plan manages retrieval and manipulating roaster plan information*/
 type Plan struct {
 	*base
-	Stripe gateways.Stripe
+	Stripe    gateways.Stripe
+	Warehouse w.Warehouse
 }
 
 /*NewPlan initializes and returns a plan with the given gateways*/
-func NewPlan(sql g.SQL, stripe gateways.Stripe) *Plan {
+func NewPlan(sql g.SQL, stripe gateways.Stripe, warehouse w.Warehouse) *Plan {
 	return &Plan{
-		base:   &base{sql: sql},
-		Stripe: stripe,
+		base:      &base{sql: sql},
+		Stripe:    stripe,
+		Warehouse: warehouse,
 	}
 }
 
 /*Insert creates a new roaster plan in stripe and adds a record to the db*/
 func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models.Plan, error) {
-
-	// TODO: get item from warehouse by id
-	item := &item.Item{}
+	item, err := p.Warehouse.GetItemByID(req.ItemID)
+	if err != nil {
+		return nil, err
+	}
 
 	planIDs := make([]string, 0)
-	plans := make([]*stripe.Plan, 0)
-
-	for i := 0; i < len(models.Frequencies); i++ {
+	for i := 1; i < len(models.Frequencies); i++ {
 		stripe, err := p.Stripe.NewPlan(roaster.Secret, item, models.Frequencies[i])
 		if err != nil {
 			return nil, err
 		}
 
-		plans = append(plans, stripe)
 		planIDs = append(planIDs, stripe.ID)
 	}
 
 	plan := models.NewPlan(roaster.ID, req.ItemID, planIDs)
-	plan.Plans = plans
-	err := p.sql.Modify("INSERT INTO plan (roasterId,itemId,planIds)VALUES(?,?)",
-		plan.RoasterID,
-		plan.ItemID,
+	err = p.sql.Modify("INSERT INTO plan (roasterId,itemId,planIds)VALUES(?,?,?)",
+		plan.RoasterID.String(),
+		plan.ItemID.String(),
 		strings.Join(plan.PlanIDs, ","),
 	)
 	if err != nil {
@@ -94,13 +94,13 @@ func (p *Plan) Get(roaster *models.Roaster, itemID uuid.UUID) (*models.Plan, err
 func (p *Plan) plan(secret string, rows *sql.Rows) ([]*models.Plan, error) {
 	plans, _ := models.PlanFromSQL(rows)
 
-	for i := range plans {
-		stripePlans, err := p.plans(secret, plans[i].PlanIDs)
-		if err != nil {
-			return nil, err
-		}
-		plans[i].Plans = stripePlans
-	}
+	// for i := range plans {
+	// 	stripePlans, err := p.plans(secret, plans[i].PlanIDs)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	plans[i].Plans = stripePlans
+	// }
 
 	return plans, nil
 }

@@ -78,14 +78,10 @@ func (c *Customer) Get(id uuid.UUID) (*models.Customer, error) {
 	}
 
 	customer := customers[0]
-	stripe, err := c.Stripe.GetCustomer(customer.CustomerID)
 	if err != nil {
 		return nil, err
 	}
 
-	customer.Sources = stripe.Sources
-	customer.Subscriptions = stripe.Subs
-	customer.Meta = stripe.Meta
 	return customer, nil
 }
 
@@ -101,7 +97,7 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 		return fmt.Errorf("ERROR: invalid frequency %s", freq)
 	}
 
-	stripe := plan.PlanIDs[interval]
+	stripe := plan.PlanIDs[interval-1]
 
 	_, err = c.Stripe.Subscribe(customer.CustomerID, stripe)
 	return err

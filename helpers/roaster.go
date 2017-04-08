@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/pborman/uuid"
@@ -56,7 +55,6 @@ func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 		return nil, err
 	}
 
-	roaster.Account = stripe
 	roaster.Publishable = stripe.Keys.Publish
 	roaster.Secret = stripe.Keys.Secret
 	return roaster, nil
@@ -79,11 +77,11 @@ func (r *Roaster) Get(id uuid.UUID) (*models.Roaster, error) {
 		return nil, err
 	}
 
-	return r.account(rows)
-}
+	roasters, err := models.RoasterFromSQL(rows)
+	if err != nil {
+		return nil, err
+	}
 
-func (r *Roaster) account(rows *sql.Rows) (*models.Roaster, error) {
-	roasters, _ := models.RoasterFromSQL(rows)
 	if len(roasters) < 1 {
 		return nil, nil
 	}

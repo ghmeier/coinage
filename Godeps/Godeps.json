@@ -11,29 +11,64 @@
 			"Rev": "947ce303a7986ba00a8c29f5835c5c58f649f856"
 		},
 		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws",
+			"Comment": "v1.7.4-1-g0700d99",
+			"Rev": "0700d99edb91ab11ba748f096cbdcf424e53446b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/protocol",
+			"Comment": "v1.7.4-1-g0700d99",
+			"Rev": "0700d99edb91ab11ba748f096cbdcf424e53446b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/private/waiter",
+			"Comment": "v1.7.4-1-g0700d99",
+			"Rev": "0700d99edb91ab11ba748f096cbdcf424e53446b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/s3",
+			"Comment": "v1.7.4-1-g0700d99",
+			"Rev": "0700d99edb91ab11ba748f096cbdcf424e53446b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/sts",
+			"Comment": "v1.7.4-1-g0700d99",
+			"Rev": "0700d99edb91ab11ba748f096cbdcf424e53446b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/vendor/github.com/go-ini/ini",
+			"Comment": "v1.7.4-1-g0700d99",
+			"Rev": "0700d99edb91ab11ba748f096cbdcf424e53446b"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/vendor/github.com/jmespath/go-jmespath",
+			"Comment": "v1.7.4-1-g0700d99",
+			"Rev": "0700d99edb91ab11ba748f096cbdcf424e53446b"
+		},
+		{
 			"ImportPath": "github.com/dgrijalva/jwt-go",
 			"Comment": "v3.0.0-17-g2268707",
 			"Rev": "2268707a8f0843315e2004ee4f1d021dc08baedf"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/config",
-			"Rev": "5b93eebde26b5b454aa22b43b79e10ed62f5039e"
+			"Rev": "2487b7038a2af87bf6d8f2515ca9e7865e6e7af9"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/gateways",
-			"Rev": "5b93eebde26b5b454aa22b43b79e10ed62f5039e"
+			"Rev": "2487b7038a2af87bf6d8f2515ca9e7865e6e7af9"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/handlers",
-			"Rev": "5b93eebde26b5b454aa22b43b79e10ed62f5039e"
+			"Rev": "2487b7038a2af87bf6d8f2515ca9e7865e6e7af9"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/helpers",
-			"Rev": "5b93eebde26b5b454aa22b43b79e10ed62f5039e"
+			"Rev": "2487b7038a2af87bf6d8f2515ca9e7865e6e7af9"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/models",
-			"Rev": "5b93eebde26b5b454aa22b43b79e10ed62f5039e"
+			"Rev": "2487b7038a2af87bf6d8f2515ca9e7865e6e7af9"
 		},
 		{
 			"ImportPath": "github.com/gin-gonic/gin/binding",
@@ -56,27 +91,27 @@
 		},
 		{
 			"ImportPath": "github.com/jakelong95/TownCenter/_mocks",
-			"Rev": "49bf43ac15c0354fc845ba947bfc378ae173d76c"
+			"Rev": "b835d493c27035649cd1525f747b8651c7f86a6f"
 		},
 		{
 			"ImportPath": "github.com/jakelong95/TownCenter/gateways",
-			"Rev": "49bf43ac15c0354fc845ba947bfc378ae173d76c"
-		},
-		{
-			"ImportPath": "github.com/jakelong95/TownCenter/helpers",
-			"Rev": "49bf43ac15c0354fc845ba947bfc378ae173d76c"
+			"Rev": "b835d493c27035649cd1525f747b8651c7f86a6f"
 		},
 		{
 			"ImportPath": "github.com/jakelong95/TownCenter/models",
-			"Rev": "49bf43ac15c0354fc845ba947bfc378ae173d76c"
+			"Rev": "b835d493c27035649cd1525f747b8651c7f86a6f"
+		},
+		{
+			"ImportPath": "github.com/lcollin/warehouse/_mocks/gateways",
+			"Rev": "bfc6e4e1be39aca869d8977031cac7652439ff64"
 		},
 		{
 			"ImportPath": "github.com/lcollin/warehouse/gateways",
-			"Rev": "d5facea4f95303a2a0a004d3e211b348a03f51ac"
+			"Rev": "bfc6e4e1be39aca869d8977031cac7652439ff64"
 		},
 		{
 			"ImportPath": "github.com/lcollin/warehouse/models",
-			"Rev": "d5facea4f95303a2a0a004d3e211b348a03f51ac"
+			"Rev": "bfc6e4e1be39aca869d8977031cac7652439ff64"
 		},
 		{
 			"ImportPath": "github.com/manucorporat/sse",
@@ -132,16 +167,12 @@
 			"Rev": "3f2707ab5115e7c54c70a77aabcb386d6f405810"
 		},
 		{
-			"ImportPath": "github.com/yuderekyu/covenant/_mocks/gateways",
-			"Rev": "742fd748f8c9cceee7c57e4c7dd6ba2e6b82fd1e"
-		},
-		{
 			"ImportPath": "github.com/yuderekyu/covenant/gateways",
-			"Rev": "742fd748f8c9cceee7c57e4c7dd6ba2e6b82fd1e"
+			"Rev": "63c8506cb5fdd25ccee4cce2274cd5bb41024cef"
 		},
 		{
 			"ImportPath": "github.com/yuderekyu/covenant/models",
-			"Rev": "742fd748f8c9cceee7c57e4c7dd6ba2e6b82fd1e"
+			"Rev": "63c8506cb5fdd25ccee4cce2274cd5bb41024cef"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",

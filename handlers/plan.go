@@ -67,7 +67,7 @@ func (p *Plan) New(ctx *gin.Context) {
 		return
 	}
 
-	plan, err := p.Plan.Insert(roaster.ID, roaster.AccountID, &json)
+	plan, err := p.Plan.Insert(roaster, &json)
 	if err != nil {
 		p.ServerError(ctx, err, json)
 		return

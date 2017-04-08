@@ -28,7 +28,7 @@ func NewPlan(sql g.SQL, stripe gateways.Stripe) *Plan {
 }
 
 /*Insert creates a new roaster plan in stripe and adds a record to the db*/
-func (p *Plan) Insert(id uuid.UUID, accountID string, req *models.PlanRequest) (*models.Plan, error) {
+func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models.Plan, error) {
 
 	// TODO: get item from warehouse by id
 	item := &item.Item{}
@@ -37,7 +37,7 @@ func (p *Plan) Insert(id uuid.UUID, accountID string, req *models.PlanRequest) (
 	plans := make([]*stripe.Plan, 0)
 
 	for i := 0; i < len(models.Frequencies); i++ {
-		stripe, err := p.Stripe.NewPlan(accountID, item, models.Frequencies[i])
+		stripe, err := p.Stripe.NewPlan(roaster.Secret, item, models.Frequencies[i])
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +46,7 @@ func (p *Plan) Insert(id uuid.UUID, accountID string, req *models.PlanRequest) (
 		planIDs = append(planIDs, stripe.ID)
 	}
 
-	plan := models.NewPlan(id, req.ItemID, planIDs)
+	plan := models.NewPlan(roaster.ID, req.ItemID, planIDs)
 	plan.Plans = plans
 	err := p.sql.Modify("INSERT INTO plan (roasterId,itemId,planIds)VALUES(?,?)",
 		plan.RoasterID,
@@ -70,7 +70,7 @@ func (p *Plan) GetByRoaster(roaster *models.Roaster, offset int, limit int) ([]*
 		return nil, err
 	}
 
-	return p.plan(roaster.AccountID, rows)
+	return p.plan(roaster.Secret, rows)
 }
 
 /*Get returns a plan associated with a roaster and itemid*/
@@ -83,7 +83,7 @@ func (p *Plan) Get(roaster *models.Roaster, itemID uuid.UUID) (*models.Plan, err
 		return nil, err
 	}
 
-	plans, err := p.plan(roaster.AccountID, rows)
+	plans, err := p.plan(roaster.Secret, rows)
 	if err != nil {
 		return nil, err
 	}
@@ -91,11 +91,11 @@ func (p *Plan) Get(roaster *models.Roaster, itemID uuid.UUID) (*models.Plan, err
 	return plans[0], err
 }
 
-func (p *Plan) plan(accountID string, rows *sql.Rows) ([]*models.Plan, error) {
+func (p *Plan) plan(secret string, rows *sql.Rows) ([]*models.Plan, error) {
 	plans, _ := models.PlanFromSQL(rows)
 
 	for i := range plans {
-		stripePlans, err := p.plans(accountID, plans[i].PlanIDs)
+		stripePlans, err := p.plans(secret, plans[i].PlanIDs)
 		if err != nil {
 			return nil, err
 		}
@@ -105,12 +105,12 @@ func (p *Plan) plan(accountID string, rows *sql.Rows) ([]*models.Plan, error) {
 	return plans, nil
 }
 
-func (p *Plan) plans(accountID string, ids []string) ([]*stripe.Plan, error) {
+func (p *Plan) plans(secret string, ids []string) ([]*stripe.Plan, error) {
 	plans := make([]*stripe.Plan, 0)
 	var err error
 	var plan *stripe.Plan
 	for i := 0; i < len(models.Frequencies); i++ {
-		plan, err = p.Stripe.GetPlan(accountID, ids[i])
+		plan, err = p.Stripe.GetPlan(secret, ids[i])
 		plans = append(plans, plan)
 	}
 	return plans, err

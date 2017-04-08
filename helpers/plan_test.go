@@ -21,20 +21,19 @@ func TestInsertPlanSuccess(t *testing.T) {
 	assert := assert.New(t)
 	mocks, p := getMockPHelper()
 
-	id := uuid.NewUUID()
-	accountID := "accountID"
+	roast := getMockCRoaster()
 	plans := getMockPlans()
 	req := getMockPlanRequest()
 
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[0]).Return(plans[0], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[1]).Return(plans[1], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[2]).Return(plans[2], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[3]).Return(plans[3], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[0]).Return(plans[0], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[1]).Return(plans[1], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[2]).Return(plans[2], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[3]).Return(plans[3], nil)
 	mocks.sql.ExpectPrepare("INSERT INTO plan").
 		ExpectExec().
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	c, err := p.Insert(id, accountID, req)
+	c, err := p.Insert(roast, req)
 
 	assert.NoError(err)
 	assert.NotNil(c)
@@ -44,20 +43,19 @@ func TestInsertPlanSQLFail(t *testing.T) {
 	assert := assert.New(t)
 	mocks, p := getMockPHelper()
 
-	id := uuid.NewUUID()
-	accountID := "accountID"
+	roast := getMockCRoaster()
 	plans := getMockPlans()
 	req := getMockPlanRequest()
 
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[0]).Return(plans[0], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[1]).Return(plans[1], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[2]).Return(plans[2], nil)
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[3]).Return(plans[3], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[0]).Return(plans[0], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[1]).Return(plans[1], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[2]).Return(plans[2], nil)
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[3]).Return(plans[3], nil)
 	mocks.sql.ExpectPrepare("INSERT INTO plan").
 		ExpectExec().
 		WillReturnError(fmt.Errorf("some error"))
 
-	c, err := p.Insert(id, accountID, req)
+	c, err := p.Insert(roast, req)
 
 	assert.Error(err)
 	assert.Nil(c)
@@ -67,13 +65,12 @@ func TestInsertPlanStripeFail(t *testing.T) {
 	assert := assert.New(t)
 	mocks, p := getMockPHelper()
 
-	id := uuid.NewUUID()
-	accountID := "accountID"
+	roast := getMockCRoaster()
 	req := getMockPlanRequest()
 
-	mocks.stripe.On("NewPlan", accountID, &item.Item{}, models.Frequencies[0]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("NewPlan", roast.Secret, &item.Item{}, models.Frequencies[0]).Return(nil, fmt.Errorf("some error"))
 
-	c, err := p.Insert(id, accountID, req)
+	c, err := p.Insert(roast, req)
 
 	assert.Error(err)
 	assert.Nil(c)
@@ -83,23 +80,21 @@ func TestGetPlanSuccess(t *testing.T) {
 	assert := assert.New(t)
 	mocks, p := getMockPHelper()
 
-	id := uuid.NewUUID()
-	accountID := "accountID"
+	roast := getMockCRoaster()
 	plans := getMockPlans()
-	plan := getMockPlan(id)
+	plan := getMockPlan(roast.ID)
 
-	roaster := getMockRoasterAccount(id)
 	req := getMockPlanRequest()
 
-	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[0]).Return(plans[0], nil)
-	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[1]).Return(plans[1], nil)
-	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[2]).Return(plans[2], nil)
-	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[3]).Return(plans[3], nil)
+	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[0]).Return(plans[0], nil)
+	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[1]).Return(plans[1], nil)
+	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[2]).Return(plans[2], nil)
+	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[3]).Return(plans[3], nil)
 	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
 		WillReturnRows(getPlanRows().
-			AddRow(id.String(), req.ItemID.String(), strings.Join(plan.PlanIDs, ",")))
+			AddRow(roast.ID.String(), req.ItemID.String(), strings.Join(plan.PlanIDs, ",")))
 
-	c, err := p.Get(roaster, req.ItemID)
+	c, err := p.Get(roast, req.ItemID)
 
 	assert.NoError(err)
 	assert.NotNil(c)
@@ -109,9 +104,7 @@ func TestGetPlanSQLFail(t *testing.T) {
 	assert := assert.New(t)
 	mocks, p := getMockPHelper()
 
-	id := uuid.NewUUID()
-
-	roaster := getMockRoasterAccount(id)
+	roaster := getMockCRoaster()
 	req := getMockPlanRequest()
 
 	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
@@ -127,22 +120,20 @@ func TestGetPlanStripeFail(t *testing.T) {
 	assert := assert.New(t)
 	mocks, p := getMockPHelper()
 
-	id := uuid.NewUUID()
-	accountID := "accountID"
-	plan := getMockPlan(id)
+	roast := getMockCRoaster()
+	plan := getMockPlan(roast.ID)
 
-	roaster := getMockRoasterAccount(id)
 	req := getMockPlanRequest()
 
-	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[0]).Return(nil, fmt.Errorf("some error"))
-	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[1]).Return(nil, fmt.Errorf("some error"))
-	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[2]).Return(nil, fmt.Errorf("some error"))
-	mocks.stripe.On("GetPlan", accountID, plan.PlanIDs[3]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[0]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[1]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[2]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("GetPlan", roast.Secret, plan.PlanIDs[3]).Return(nil, fmt.Errorf("some error"))
 	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
 		WillReturnRows(getPlanRows().
-			AddRow(id.String(), req.ItemID.String(), strings.Join(plan.PlanIDs, ",")))
+			AddRow(roast.ID.String(), req.ItemID.String(), strings.Join(plan.PlanIDs, ",")))
 
-	c, err := p.Get(roaster, req.ItemID)
+	c, err := p.Get(roast, req.ItemID)
 
 	assert.Error(err)
 	assert.Nil(c)
@@ -152,24 +143,22 @@ func TestGetPlanByRoasterSuccess(t *testing.T) {
 	assert := assert.New(t)
 	mocks, p := getMockPHelper()
 
-	id := uuid.NewUUID()
+	roaster := getMockCRoaster()
 	plans := getMockPlans()
-	plan := getMockPlan(id)
+	plan := getMockPlan(roaster.ID)
 
-	roaster := getMockRoasterAccount(id)
-
-	mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[0]).Return(plans[0], nil)
-	mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[1]).Return(plans[1], nil)
-	mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[2]).Return(plans[2], nil)
-	mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[3]).Return(plans[3], nil)
+	mocks.stripe.On("GetPlan", roaster.Secret, plan.PlanIDs[0]).Return(plans[0], nil)
+	mocks.stripe.On("GetPlan", roaster.Secret, plan.PlanIDs[1]).Return(plans[1], nil)
+	mocks.stripe.On("GetPlan", roaster.Secret, plan.PlanIDs[2]).Return(plans[2], nil)
+	mocks.stripe.On("GetPlan", roaster.Secret, plan.PlanIDs[3]).Return(plans[3], nil)
 	// mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[0]).Return(plans[0], nil)
 	// mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[1]).Return(plans[1], nil)
 	// mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[2]).Return(plans[2], nil)
 	// mocks.stripe.On("GetPlan", roaster.AccountID, plan.PlanIDs[3]).Return(plans[3], nil)
 	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
 		WillReturnRows(getPlanRows().
-			AddRow(id.String(), uuid.New(), strings.Join(plan.PlanIDs, ",")).
-			AddRow(id.String(), uuid.New(), strings.Join(plan.PlanIDs, ",")))
+			AddRow(roaster.ID.String(), uuid.New(), strings.Join(plan.PlanIDs, ",")).
+			AddRow(roaster.ID.String(), uuid.New(), strings.Join(plan.PlanIDs, ",")))
 
 	c, err := p.GetByRoaster(roaster, 0, 20)
 
@@ -182,9 +171,7 @@ func TestGetPlanByRoasterFail(t *testing.T) {
 	assert := assert.New(t)
 	mocks, p := getMockPHelper()
 
-	id := uuid.NewUUID()
-
-	roaster := getMockRoasterAccount(id)
+	roaster := getMockCRoaster()
 
 	mocks.sql.ExpectQuery("SELECT roasterId,itemId,planIds FROM plan").
 		WillReturnError(fmt.Errorf("some error"))
@@ -209,6 +196,15 @@ func getMockPlan(id uuid.UUID) *models.Plan {
 		RoasterID: id,
 		ItemID:    uuid.NewUUID(),
 		PlanIDs:   []string{"1", "2", "3", "4"},
+	}
+}
+
+func getMockCRoaster() *models.Roaster {
+	return &models.Roaster{
+		ID:          uuid.NewUUID(),
+		AccountID:   "test",
+		Secret:      "secret",
+		Publishable: "test",
 	}
 }
 

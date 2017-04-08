@@ -46,15 +46,19 @@ func (r *Roaster) Insert(req *models.RoasterRequest) (*models.Roaster, error) {
 
 	roaster := models.NewRoaster(tRoaster.ID, stripe.ID)
 	err = r.sql.Modify(
-		"INSERT INTO roaster_account (id, stripeAccountId)VALUE(?, ?)",
+		"INSERT INTO roaster_account (id, stripeAccountId, secret, publishable)VALUE(?, ?, ?, ?)",
 		roaster.ID,
 		roaster.AccountID,
+		stripe.Keys.Secret,
+		stripe.Keys.Publish,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	roaster.Account = stripe
+	roaster.Publishable = stripe.Keys.Publish
+	roaster.Secret = stripe.Keys.Secret
 	return roaster, nil
 }
 
@@ -70,7 +74,7 @@ func (r *Roaster) GetByUserID(id uuid.UUID) (*models.Roaster, error) {
 
 /*Get returns the roaster account associated with the given id*/
 func (r *Roaster) Get(id uuid.UUID) (*models.Roaster, error) {
-	rows, err := r.sql.Select("SELECT id, stripeAccountId FROM roaster_account WHERE id=?", id)
+	rows, err := r.sql.Select("SELECT id, stripeAccountId, secret, publishable FROM roaster_account WHERE id=?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -85,13 +89,6 @@ func (r *Roaster) account(rows *sql.Rows) (*models.Roaster, error) {
 	}
 
 	roaster := roasters[0]
-	stripe, err := r.Stripe.GetAccount(roaster.AccountID)
-	if err != nil {
-		return nil, err
-	}
-
-	roaster.Account = stripe
-
 	return roaster, nil
 }
 

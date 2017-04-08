@@ -19,9 +19,8 @@ type Stripe interface {
 	DeleteCustomer(id string) error
 	AddSource(id string, token string) (*stripe.Customer, error)
 	NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
-	GetAccount(id string) (*stripe.Account, error)
-	NewPlan(id string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
-	GetPlan(id string, pid string) (*stripe.Plan, error)
+	NewPlan(secret string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
+	GetPlan(secret string, pid string) (*stripe.Plan, error)
 	Subscribe(id string, planID string) (*stripe.Sub, error)
 }
 
@@ -123,27 +122,13 @@ func (s *stripeS) NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*str
 	return account, nil
 }
 
-func (s *stripeS) GetAccount(id string) (*stripe.Account, error) {
-	account, err := s.c.Account.GetByID(id, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return account, nil
-}
-
-func (s *stripeS) NewPlan(id string, item *item.Item, freq models.Frequency) (*stripe.Plan, error) {
+func (s *stripeS) NewPlan(secret string, item *item.Item, freq models.Frequency) (*stripe.Plan, error) {
 	interval, ok := models.ToFrequency(freq)
 	if !ok {
 		return nil, fmt.Errorf("ERROR: no frequency for interval %s", freq)
 	}
 
-	account, err := s.GetAccount(id)
-	if err != nil {
-		return nil, err
-	}
-
-	client := client.New(account.Keys.Secret, nil)
+	client := client.New(secret, nil)
 	plan, err := client.Plans.New(&stripe.PlanParams{
 		ID:            item.ID.String(),
 		Amount:        uint64(item.ConsumerPrice * 100),
@@ -161,14 +146,9 @@ func (s *stripeS) NewPlan(id string, item *item.Item, freq models.Frequency) (*s
 	return plan, nil
 }
 
-func (s *stripeS) GetPlan(id string, pid string) (*stripe.Plan, error) {
-	account, err := s.GetAccount(id)
-	if err != nil {
-		return nil, err
-	}
-
-	client := client.New(account.Keys.Secret, nil)
-	plan, err := client.Plans.Get(id, nil)
+func (s *stripeS) GetPlan(secret string, pid string) (*stripe.Plan, error) {
+	client := client.New(secret, nil)
+	plan, err := client.Plans.Get(pid, nil)
 	if err != nil {
 		return nil, err
 	}

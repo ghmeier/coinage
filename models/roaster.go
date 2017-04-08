@@ -11,9 +11,11 @@ import (
   about billing for roaster entities*/
 type Roaster struct {
 	//ID is the roaster ID in towncenter
-	ID        uuid.UUID       `json:"id"`
-	AccountID string          `json:"stripeAccountId"`
-	Account   *stripe.Account `json:"account"`
+	ID          uuid.UUID `json:"id"`
+	AccountID   string    `json:"stripeAccountId"`
+	Secret      string
+	Publishable string
+	Account     *stripe.Account `json:"account"`
 }
 
 /*RoasterRequest has information used in creating a roaster
@@ -38,7 +40,7 @@ func RoasterFromSQL(rows *sql.Rows) ([]*Roaster, error) {
 
 	for rows.Next() {
 		c := &Roaster{}
-		rows.Scan(&c.ID, &c.AccountID)
+		rows.Scan(&c.ID, &c.AccountID, &c.Secret, &c.Publishable)
 		roasters = append(roasters, c)
 	}
 

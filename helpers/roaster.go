@@ -70,9 +70,28 @@ func (r *Roaster) GetByUserID(id uuid.UUID) (*models.Roaster, error) {
 	return r.Get(roaster.ID)
 }
 
+func (r *Roaster) GetByAccountID(id string) (*models.Roaster, error) {
+	rows, err := r.sql.Select("SELECT id, stripeAccountId, secret, publishable FROM roaster_account WHERE stripeAccountId=?", id)
+	if err != nil {
+		return nil, err
+	}
+
+	roasters, err := models.RoasterFromSQL(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(roasters) < 1 {
+		return nil, nil
+	}
+
+	roaster := roasters[0]
+	return roaster, nil
+}
+
 /*Get returns the roaster account associated with the given id*/
 func (r *Roaster) Get(id uuid.UUID) (*models.Roaster, error) {
-	rows, err := r.sql.Select("SELECT id, stripeAccountId, secret, publishable FROM roaster_account WHERE id=?", id)
+	rows, err := r.sql.Select("SELECT id, stripeAccountId, secret, publishable FROM roaster_account WHERE id=?", id.String())
 	if err != nil {
 		return nil, err
 	}

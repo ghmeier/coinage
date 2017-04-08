@@ -9,10 +9,13 @@ import (
 	"github.com/ghmeier/bloodlines/config"
 	g "github.com/ghmeier/bloodlines/gateways"
 	h "github.com/ghmeier/bloodlines/handlers"
+	w "github.com/ghmeier/bloodlines/workers"
 	"github.com/ghmeier/coinage/gateways"
 	"github.com/ghmeier/coinage/handlers"
+	"github.com/ghmeier/coinage/workers"
 	towncenter "github.com/jakelong95/TownCenter/gateways"
 	warehouse "github.com/lcollin/warehouse/gateways"
+	covenant "github.com/yuderekyu/covenant/gateways"
 )
 
 /*Coinage has all the handlers, and routing for the billing microzervice
@@ -22,6 +25,8 @@ type Coinage struct {
 	roaster  handlers.RoasterI
 	customer handlers.CustomerI
 	plan     handlers.PlanI
+	event    handlers.EventI
+	workers  []w.Worker
 }
 
 /*New creates and instruments a coinage router*/
@@ -41,9 +46,16 @@ func New(config *config.Root) (*Coinage, error) {
 		fmt.Println(err.Error())
 	}
 
+	rabbit, err := g.NewRabbit(config.Rabbit)
+	if err != nil {
+		fmt.Println("ERROR: could not connect to RabbitMQ")
+		fmt.Println(err.Error())
+	}
+
 	stripe := gateways.NewStripe(config.Stripe)
 	towncenter := towncenter.NewTownCenter(config.TownCenter)
 	warehouse := warehouse.NewWarehouse(config.Warehouse)
+	covenant := covenant.NewCovenant(config.Covenant)
 
 	ctx := &h.GatewayContext{
 		Sql:        sql,
@@ -51,12 +63,16 @@ func New(config *config.Root) (*Coinage, error) {
 		Stripe:     stripe,
 		TownCenter: towncenter,
 		Warehouse:  warehouse,
+		Covenant:   covenant,
+		Rabbit:     rabbit,
 	}
 
 	b := &Coinage{
 		roaster:  handlers.NewRoaster(ctx),
 		customer: handlers.NewCustomer(ctx),
 		plan:     handlers.NewPlan(ctx),
+		event:    handlers.NewEvent(ctx),
+		workers:  []w.Worker{workers.NewEvent(ctx)},
 	}
 	b.router = gin.Default()
 	b.router.Use(h.GetCors())
@@ -91,6 +107,15 @@ func New(config *config.Root) (*Coinage, error) {
 		customer.POST("/:id/subscription", b.customer.Subscribe)
 		customer.DELETE("/:id/subscription/:pid", b.customer.Unsubscribe)
 		customer.DELETE("/:id", b.customer.Delete)
+	}
+	event := b.router.Group("/api/event")
+	{
+		event.Use(b.event.Time())
+		event.POST("", b.event.Handle)
+	}
+
+	for _, w := range b.workers {
+		w.Consume()
 	}
 
 	return b, nil

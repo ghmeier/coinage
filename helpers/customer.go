@@ -65,7 +65,16 @@ func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error)
 
 /*Get returns a customer associated with the given UserID*/
 func (c *Customer) Get(id uuid.UUID) (*models.Customer, error) {
-	rows, err := c.sql.Select("SELECT userId, stripeCustomerId FROM customer_account WHERE userId=?", id.String())
+	return c.customerQuery("SELECT userId, stripeCustomerId FROM customer_account WHERE userId=?", id.String())
+
+}
+
+func (c *Customer) GetByCustomerID(id string) (*models.Customer, error) {
+	return c.customerQuery("SELECT userId, stripeCustomerId FROM customer_account WHERE stripeCustomerId=?", id)
+}
+
+func (c *Customer) customerQuery(query, value string) (*models.Customer, error) {
+	rows, err := c.sql.Select(query, value)
 	if err != nil {
 		return nil, err
 	}

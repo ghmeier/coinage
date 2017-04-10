@@ -2,6 +2,7 @@ package gateways
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
@@ -136,7 +137,7 @@ func (s *stripeS) NewPlan(secret string, item *item.Item, freq models.Frequency)
 		Interval:      "week",
 		IntervalCount: uint64(interval),
 		Name:          fmt.Sprintf("%s %s", item.Name, string(freq)),
-		Statement:     fmt.Sprintf("Expresso %s", item.Name),
+		Statement:     strings.fmt.Sprintf("exp-%18s", item.Name),
 	}
 	params.AddMeta("itemId", item.ID.String())
 	plan, err := client.Plans.New(params)

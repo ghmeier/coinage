@@ -198,6 +198,9 @@ func TestSubscribeSuccess(t *testing.T) {
 
 	user := getMockUser()
 	c := &stripe.Customer{}
+	roaster := &models.Roaster{
+		Secret: "test",
+	}
 	plan := &models.Plan{
 		PlanIDs: []string{uuid.New()},
 	}
@@ -207,10 +210,10 @@ func TestSubscribeSuccess(t *testing.T) {
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
 			AddRow(user.ID.String(), "customerID"))
-	mocks.stripe.On("Subscribe", "customerID", plan.PlanIDs[0]).Return(nil, nil)
+	mocks.stripe.On("Subscribe", roaster.Secret, "customerID", plan.PlanIDs[0]).Return(nil, nil)
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
-	err := customer.Subscribe(user.ID, plan, freq)
+	err := customer.Subscribe(user.ID, roaster, plan, freq)
 
 	assert.NoError(err)
 }
@@ -220,6 +223,9 @@ func TestSubscribeUserFail(t *testing.T) {
 	mocks, customer := getMockCustomer()
 
 	user := getMockUser()
+	roaster := &models.Roaster{
+		Secret: "test",
+	}
 	plan := &models.Plan{
 		PlanIDs: []string{uuid.New()},
 	}
@@ -228,7 +234,7 @@ func TestSubscribeUserFail(t *testing.T) {
 	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnError(fmt.Errorf("some error"))
-	err := customer.Subscribe(user.ID, plan, freq)
+	err := customer.Subscribe(user.ID, roaster, plan, freq)
 
 	assert.Error(err)
 }
@@ -242,6 +248,9 @@ func TestSubscribeFreqFail(t *testing.T) {
 	plan := &models.Plan{
 		PlanIDs: []string{uuid.New()},
 	}
+	roaster := &models.Roaster{
+		Secret: "test",
+	}
 	freq := models.Frequency("badstring")
 
 	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
@@ -250,7 +259,7 @@ func TestSubscribeFreqFail(t *testing.T) {
 			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
-	err := customer.Subscribe(user.ID, plan, freq)
+	err := customer.Subscribe(user.ID, roaster, plan, freq)
 
 	assert.Error(err)
 }
@@ -264,16 +273,19 @@ func TestSubscribeFail(t *testing.T) {
 	plan := &models.Plan{
 		PlanIDs: []string{uuid.New(), uuid.New()},
 	}
+	roaster := &models.Roaster{
+		Secret: "test",
+	}
 	freq := models.Frequency(models.BIWEEKLY)
 
 	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
 			AddRow(user.ID.String(), "customerID"))
-	mocks.stripe.On("Subscribe", "customerID", plan.PlanIDs[1]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("Subscribe", roaster.Secret, "customerID", plan.PlanIDs[1]).Return(nil, fmt.Errorf("some error"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
-	err := customer.Subscribe(user.ID, plan, freq)
+	err := customer.Subscribe(user.ID, roaster, plan, freq)
 
 	assert.Error(err)
 }

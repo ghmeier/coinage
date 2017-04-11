@@ -49,29 +49,6 @@ func (_m *Stripe) DeleteCustomer(id string) error {
 	return r0
 }
 
-// GetAccount provides a mock function with given fields: id
-func (_m *Stripe) GetAccount(id string) (*stripe.Account, error) {
-	ret := _m.Called(id)
-
-	var r0 *stripe.Account
-	if rf, ok := ret.Get(0).(func(string) *stripe.Account); ok {
-		r0 = rf(id)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*stripe.Account)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(id)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetCustomer provides a mock function with given fields: id
 func (_m *Stripe) GetCustomer(id string) (*stripe.Customer, error) {
 	ret := _m.Called(id)
@@ -95,13 +72,13 @@ func (_m *Stripe) GetCustomer(id string) (*stripe.Customer, error) {
 	return r0, r1
 }
 
-// GetPlan provides a mock function with given fields: id, pid
-func (_m *Stripe) GetPlan(id string, pid string) (*stripe.Plan, error) {
-	ret := _m.Called(id, pid)
+// GetPlan provides a mock function with given fields: secret, pid
+func (_m *Stripe) GetPlan(secret string, pid string) (*stripe.Plan, error) {
+	ret := _m.Called(secret, pid)
 
 	var r0 *stripe.Plan
 	if rf, ok := ret.Get(0).(func(string, string) *stripe.Plan); ok {
-		r0 = rf(id, pid)
+		r0 = rf(secret, pid)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*stripe.Plan)
@@ -110,7 +87,7 @@ func (_m *Stripe) GetPlan(id string, pid string) (*stripe.Plan, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(id, pid)
+		r1 = rf(secret, pid)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -162,13 +139,13 @@ func (_m *Stripe) NewCustomer(token string, userID string) (string, error) {
 	return r0, r1
 }
 
-// NewPlan provides a mock function with given fields: id, item, freq
-func (_m *Stripe) NewPlan(id string, item *warehousemodels.Item, freq coinagemodels.Frequency) (*stripe.Plan, error) {
-	ret := _m.Called(id, item, freq)
+// NewPlan provides a mock function with given fields: secret, item, freq
+func (_m *Stripe) NewPlan(secret string, item *warehousemodels.Item, freq coinagemodels.Frequency) (*stripe.Plan, error) {
+	ret := _m.Called(secret, item, freq)
 
 	var r0 *stripe.Plan
 	if rf, ok := ret.Get(0).(func(string, *warehousemodels.Item, coinagemodels.Frequency) *stripe.Plan); ok {
-		r0 = rf(id, item, freq)
+		r0 = rf(secret, item, freq)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*stripe.Plan)
@@ -177,7 +154,7 @@ func (_m *Stripe) NewPlan(id string, item *warehousemodels.Item, freq coinagemod
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, *warehousemodels.Item, coinagemodels.Frequency) error); ok {
-		r1 = rf(id, item, freq)
+		r1 = rf(secret, item, freq)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -185,13 +162,13 @@ func (_m *Stripe) NewPlan(id string, item *warehousemodels.Item, freq coinagemod
 	return r0, r1
 }
 
-// Subscribe provides a mock function with given fields: id, planID
-func (_m *Stripe) Subscribe(id string, planID string) (*stripe.Sub, error) {
-	ret := _m.Called(id, planID)
+// Subscribe provides a mock function with given fields: secret, id, planID
+func (_m *Stripe) Subscribe(secret string, id string, planID string) (*stripe.Sub, error) {
+	ret := _m.Called(secret, id, planID)
 
 	var r0 *stripe.Sub
-	if rf, ok := ret.Get(0).(func(string, string) *stripe.Sub); ok {
-		r0 = rf(id, planID)
+	if rf, ok := ret.Get(0).(func(string, string, string) *stripe.Sub); ok {
+		r0 = rf(secret, id, planID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*stripe.Sub)
@@ -199,8 +176,8 @@ func (_m *Stripe) Subscribe(id string, planID string) (*stripe.Sub, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(id, planID)
+	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
+		r1 = rf(secret, id, planID)
 	} else {
 		r1 = ret.Error(1)
 	}

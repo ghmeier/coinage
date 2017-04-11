@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/pborman/uuid"
@@ -44,7 +45,10 @@ func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models
 			return nil, err
 		}
 
+		fmt.Println(stripe)
+		fmt.Println(planIDs)
 		planIDs = append(planIDs, stripe.ID)
+		fmt.Println(planIDs)
 	}
 
 	plan := models.NewPlan(roaster.ID, req.ItemID, planIDs)
@@ -94,13 +98,13 @@ func (p *Plan) Get(roaster *models.Roaster, itemID uuid.UUID) (*models.Plan, err
 func (p *Plan) plan(secret string, rows *sql.Rows) ([]*models.Plan, error) {
 	plans, _ := models.PlanFromSQL(rows)
 
-	// for i := range plans {
-	// 	stripePlans, err := p.plans(secret, plans[i].PlanIDs)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	plans[i].Plans = stripePlans
-	// }
+	for i := range plans {
+		_, err := p.plans(secret, plans[i].PlanIDs)
+		if err != nil {
+			return nil, err
+		}
+		//		plans[i].Plans = stripePlans
+	}
 
 	return plans, nil
 }
@@ -109,9 +113,10 @@ func (p *Plan) plans(secret string, ids []string) ([]*stripe.Plan, error) {
 	plans := make([]*stripe.Plan, 0)
 	var err error
 	var plan *stripe.Plan
-	for i := 0; i < len(models.Frequencies); i++ {
+	for i := 0; i < len(ids); i++ {
 		plan, err = p.Stripe.GetPlan(secret, ids[i])
 		plans = append(plans, plan)
+		fmt.Println(plans)
 	}
 	return plans, err
 }

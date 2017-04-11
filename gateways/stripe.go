@@ -14,14 +14,14 @@ import (
 
 /*Stripe wraps the stripe-go api for coinage use*/
 type Stripe interface {
-	NewCustomer(token string, userID string) (string, error)
+	NewCustomer(token, userID string) (string, error)
 	GetCustomer(id string) (*stripe.Customer, error)
 	DeleteCustomer(id string) error
-	AddSource(id string, token string) (*stripe.Customer, error)
+	AddSource(id, token string) (*stripe.Customer, error)
 	NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	NewPlan(secret string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
-	GetPlan(secret string, pid string) (*stripe.Plan, error)
-	Subscribe(id string, planID string) (*stripe.Sub, error)
+	GetPlan(secret, pid string) (*stripe.Plan, error)
+	Subscribe(secret, id, planID string) (*stripe.Sub, error)
 }
 
 type stripeS struct {
@@ -158,8 +158,9 @@ func (s *stripeS) GetPlan(secret string, pid string) (*stripe.Plan, error) {
 	return plan, nil
 }
 
-func (s *stripeS) Subscribe(id string, planID string) (*stripe.Sub, error) {
-	sub, err := s.c.Subs.New(&stripe.SubParams{Customer: id, Plan: planID})
+func (s *stripeS) Subscribe(secret, customerID, planID string) (*stripe.Sub, error) {
+	client := client.New(secret, nil)
+	sub, err := client.Subs.New(&stripe.SubParams{Customer: customerID, Plan: planID})
 	if err != nil {
 		return nil, err
 	}

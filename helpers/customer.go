@@ -95,7 +95,7 @@ func (c *Customer) customerQuery(query, value string) (*models.Customer, error) 
 }
 
 /*Subscribe creates a new subscription to the provided plan at the given Frequency in stripe*/
-func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Frequency) error {
+func (c *Customer) Subscribe(id uuid.UUID, roaster *models.Roaster, plan *models.Plan, freq models.Frequency) error {
 	customer, err := c.Get(id)
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 
 	stripe := plan.PlanIDs[interval-1]
 
-	_, err = c.Stripe.Subscribe(customer.CustomerID, stripe)
+	_, err = c.Stripe.Subscribe(roaster.Secret, customer.CustomerID, stripe)
 	return err
 }
 

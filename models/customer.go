@@ -27,6 +27,7 @@ type SubscribeRequest struct {
 	RoasterID uuid.UUID `json:"roasterId" binding:"required"`
 	ItemID    uuid.UUID `json:"itemId" binding:"required"`
 	Frequency Frequency `json:"frequency" binding:"required"`
+	Quantity  uint64    `json:"quantity" binding:"required"`
 }
 
 /*NewCustomer initializes and returns the id fields of a customer*/
@@ -38,11 +39,12 @@ func NewCustomer(userID uuid.UUID, id string) *Customer {
 }
 
 /*NewSubscribeRequest creates a new SubscribeRequest*/
-func NewSubscribeRequest(roasterID uuid.UUID, itemID uuid.UUID, frequency Frequency) *SubscribeRequest {
+func NewSubscribeRequest(roasterID uuid.UUID, itemID uuid.UUID, frequency Frequency, quantity uint64) *SubscribeRequest {
 	return &SubscribeRequest{
 		RoasterID: roasterID,
 		ItemID:    itemID,
 		Frequency: frequency,
+		Quantity:  quantity,
 	}
 }
 

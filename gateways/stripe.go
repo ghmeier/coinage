@@ -5,6 +5,7 @@ import (
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
+	//"github.com/stripe/stripe-go/token"
 
 	"github.com/ghmeier/bloodlines/config"
 	"github.com/ghmeier/coinage/models"
@@ -21,7 +22,7 @@ type Stripe interface {
 	NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	NewPlan(secret string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
 	GetPlan(secret, pid string) (*stripe.Plan, error)
-	Subscribe(secret, id, planID string) (*stripe.Sub, error)
+	Subscribe(roaster *models.Roaster, id, planID string, quantity uint64) (*stripe.Sub, error)
 }
 
 type stripeS struct {
@@ -158,9 +159,28 @@ func (s *stripeS) GetPlan(secret string, pid string) (*stripe.Plan, error) {
 	return plan, nil
 }
 
-func (s *stripeS) Subscribe(secret, customerID, planID string) (*stripe.Sub, error) {
-	client := client.New(secret, nil)
-	sub, err := client.Subs.New(&stripe.SubParams{Customer: customerID, Plan: planID})
+func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, quantity uint64) (*stripe.Sub, error) {
+	client := client.New(roaster.Secret, nil)
+	tParams := &stripe.TokenParams{
+		Customer: customerID,
+	}
+	tParams.SetStripeAccount(roaster.AccountID)
+
+	customerToken, err := s.c.Tokens.New(tParams)
+	if err != nil {
+		return nil, err
+	}
+
+	cParams := &stripe.CustomerParams{
+		Desc: customerID,
+	}
+	cParams.SetSource(customerToken.ID)
+
+	customer, err := client.Customers.New(cParams)
+	if err != nil {
+		return nil, err
+	}
+	sub, err := client.Subs.New(&stripe.SubParams{Customer: customer.ID, Plan: planID, Quantity: quantity})
 	if err != nil {
 		return nil, err
 	}

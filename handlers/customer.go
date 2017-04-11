@@ -114,7 +114,7 @@ func (c *Customer) Subscribe(ctx *gin.Context) {
 		return
 	}
 
-	err = c.Customer.Subscribe(uuid.Parse(id), roaster, plan, json.Frequency)
+	err = c.Customer.Subscribe(uuid.Parse(id), roaster, plan, json.Frequency, json.Quantity)
 	if err != nil {
 		c.ServerError(ctx, err, json)
 		return

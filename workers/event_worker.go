@@ -91,8 +91,9 @@ func (e *eventWorker) createOrder(customerID string, subscription *stripe.Invoic
 		return fmt.Errorf("No customer for customerId %s", customerID)
 	}
 
-	//itemID := subscription.Plan.Meta["itemId"]
-	//userID := customer.UserID
+	itemID := subscription.Plan.Meta["itemId"]
+	userID := customer.UserID
+	fmt.Printf("Received invoice for %s, on for item %s\n", userID, itemID)
 	//TODO: send order creation request based on itemID and userID
 
 	return nil

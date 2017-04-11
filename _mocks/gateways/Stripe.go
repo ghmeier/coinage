@@ -162,13 +162,13 @@ func (_m *Stripe) NewPlan(secret string, item *warehousemodels.Item, freq coinag
 	return r0, r1
 }
 
-// Subscribe provides a mock function with given fields: secret, id, planID
-func (_m *Stripe) Subscribe(secret string, id string, planID string) (*stripe.Sub, error) {
-	ret := _m.Called(secret, id, planID)
+// Subscribe provides a mock function with given fields: roaster, id, planID, quantity
+func (_m *Stripe) Subscribe(roaster *coinagemodels.Roaster, id string, planID string, quantity uint64) (*stripe.Sub, error) {
+	ret := _m.Called(roaster, id, planID, quantity)
 
 	var r0 *stripe.Sub
-	if rf, ok := ret.Get(0).(func(string, string, string) *stripe.Sub); ok {
-		r0 = rf(secret, id, planID)
+	if rf, ok := ret.Get(0).(func(*coinagemodels.Roaster, string, string, uint64) *stripe.Sub); ok {
+		r0 = rf(roaster, id, planID, quantity)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*stripe.Sub)
@@ -176,8 +176,8 @@ func (_m *Stripe) Subscribe(secret string, id string, planID string) (*stripe.Su
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(secret, id, planID)
+	if rf, ok := ret.Get(1).(func(*coinagemodels.Roaster, string, string, uint64) error); ok {
+		r1 = rf(roaster, id, planID, quantity)
 	} else {
 		r1 = ret.Error(1)
 	}

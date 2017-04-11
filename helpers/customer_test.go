@@ -210,10 +210,10 @@ func TestSubscribeSuccess(t *testing.T) {
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
 			AddRow(user.ID.String(), "customerID"))
-	mocks.stripe.On("Subscribe", roaster.Secret, "customerID", plan.PlanIDs[0]).Return(nil, nil)
+	mocks.stripe.On("Subscribe", roaster, "customerID", plan.PlanIDs[0], uint64(1)).Return(nil, nil)
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
-	err := customer.Subscribe(user.ID, roaster, plan, freq)
+	err := customer.Subscribe(user.ID, roaster, plan, freq, uint64(1))
 
 	assert.NoError(err)
 }
@@ -234,7 +234,7 @@ func TestSubscribeUserFail(t *testing.T) {
 	mocks.sql.ExpectQuery("SELECT userId, stripeCustomerId FROM customer_account").
 		WithArgs(user.ID.String()).
 		WillReturnError(fmt.Errorf("some error"))
-	err := customer.Subscribe(user.ID, roaster, plan, freq)
+	err := customer.Subscribe(user.ID, roaster, plan, freq, uint64(1))
 
 	assert.Error(err)
 }
@@ -259,7 +259,7 @@ func TestSubscribeFreqFail(t *testing.T) {
 			AddRow(user.ID.String(), "customerID"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
-	err := customer.Subscribe(user.ID, roaster, plan, freq)
+	err := customer.Subscribe(user.ID, roaster, plan, freq, uint64(1))
 
 	assert.Error(err)
 }
@@ -282,10 +282,10 @@ func TestSubscribeFail(t *testing.T) {
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
 			AddRow(user.ID.String(), "customerID"))
-	mocks.stripe.On("Subscribe", roaster.Secret, "customerID", plan.PlanIDs[1]).Return(nil, fmt.Errorf("some error"))
+	mocks.stripe.On("Subscribe", roaster, "customerID", plan.PlanIDs[1], uint64(1)).Return(nil, fmt.Errorf("some error"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
-	err := customer.Subscribe(user.ID, roaster, plan, freq)
+	err := customer.Subscribe(user.ID, roaster, plan, freq, uint64(1))
 
 	assert.Error(err)
 }

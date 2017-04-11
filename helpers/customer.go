@@ -53,7 +53,7 @@ func (c *Customer) Insert(req *models.CustomerRequest) (*models.Customer, error)
 	}
 
 	customer = models.NewCustomer(req.UserID, customerID)
-	err = c.sql.Modify("INSERT INTO customer_account (userId, stripeCustomerId)VALUES(?,?,?)",
+	err = c.sql.Modify("INSERT INTO customer_account (userId, stripeCustomerId)VALUES(?,?)",
 		customer.UserID,
 		customer.CustomerID)
 	if err != nil {

@@ -100,6 +100,9 @@ func (c *Customer) Subscribe(id uuid.UUID, plan *models.Plan, freq models.Freque
 	if err != nil {
 		return err
 	}
+	if customer == nil {
+		return fmt.Errorf("Error: no customer for this user")
+	}
 
 	interval, ok := models.ToFrequency(freq)
 	if !ok {

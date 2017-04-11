@@ -27,6 +27,7 @@ type SubscribeRequest struct {
 	RoasterID uuid.UUID `json:"roasterId" binding:"required"`
 	ItemID    uuid.UUID `json:"itemId" binding:"required"`
 	Frequency Frequency `json:"frequency" binding:"required"`
+	Quantity  int       `json:"quantity" binding:"required"`
 }
 
 /*NewCustomer initializes and returns the id fields of a customer*/

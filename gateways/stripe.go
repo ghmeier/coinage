@@ -2,10 +2,10 @@ package gateways
 
 import (
 	"fmt"
+	//"time"
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
-	//"github.com/stripe/stripe-go/token"
 
 	"github.com/ghmeier/bloodlines/config"
 	"github.com/ghmeier/coinage/models"

@@ -238,7 +238,7 @@ func getMockRoaster(id uuid.UUID) *tmodels.Roaster {
 		"phone", "addressLine1",
 		"addressLine2", "addressCity",
 		"addressState", "addressZip",
-		"addressCountry")
+		"addressCountry", "12/12/2016")
 	r.ID = id
 	return r
 }

@@ -102,7 +102,7 @@ func (e *eventWorker) createOrder(customerID string, subscription *stripe.Invoic
 
 	itemID := uuid.Parse(subscription.Plan.Meta["itemId"])
 	userID := customer.UserID
-	fmt.Printf("Received invoice for %s, on for item %s\n", userID, itemID)
+	fmt.Printf("Received invoice for %s, on for %s\n", userID, itemID)
 
 	r := &cmodels.RequestOrder{
 		UserID: userID,

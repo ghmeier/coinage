@@ -22,7 +22,7 @@ type Stripe interface {
 	NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	NewPlan(secret string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
 	GetPlan(secret, pid string) (*stripe.Plan, error)
-	Subscribe(roaster *models.Roaster, id, planID string, quantity uint64) (*stripe.Sub, error)
+	Subscribe(roaster *models.Roaster, id, planID string, quantity uint64) (string, error)
 }
 
 type stripeS struct {
@@ -54,7 +54,7 @@ func (s *stripeS) NewCustomer(token string, userID string) (string, error) {
 	return c.ID, err
 }
 
-/*GetCustomer returns a stripe customer by their cutsomerID*/
+/*GetCustomer returns a stripe customer by their customerID*/
 func (s *stripeS) GetCustomer(id string) (*stripe.Customer, error) {
 	c, err := s.c.Customers.Get(id, nil)
 	if err != nil {
@@ -159,7 +159,7 @@ func (s *stripeS) GetPlan(secret string, pid string) (*stripe.Plan, error) {
 	return plan, nil
 }
 
-func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, quantity uint64) (*stripe.Sub, error) {
+func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, quantity uint64) (string, error) {
 	client := client.New(roaster.Secret, nil)
 	tParams := &stripe.TokenParams{
 		Customer: customerID,
@@ -168,22 +168,37 @@ func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, 
 
 	customerToken, err := s.c.Tokens.New(tParams)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	cParams := &stripe.CustomerParams{
 		Desc: customerID,
+		Params: stripe.Params{
+			Meta: map[string]string{
+				"cust": customerID,
+			},
+		},
 	}
 	cParams.SetSource(customerToken.ID)
 
 	customer, err := client.Customers.New(cParams)
 	if err != nil {
-		return nil, err
-	}
-	sub, err := client.Subs.New(&stripe.SubParams{Customer: customer.ID, Plan: planID, Quantity: quantity})
-	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return sub, nil
+	_, err = client.Subs.New(&stripe.SubParams{
+		Customer: customer.ID,
+		Plan:     planID,
+		Quantity: quantity,
+		Params: stripe.Params{
+			Meta: map[string]string{
+				"cust": customerID,
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return customer.ID, nil
 }

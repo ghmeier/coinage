@@ -13,15 +13,14 @@ import (
 	"github.com/ghmeier/coinage/workers"
 )
 
-/*PlanI describes the requests about billing plans that
-  can be handled*/
+/*EventI handles webhook requests from stripe*/
 type EventI interface {
 	Handle(*gin.Context)
 	/*Time tracks the length of execution for each call in the handler*/
 	Time() gin.HandlerFunc
 }
 
-/*Plan implements PlanI with coinage helpers*/
+/*Event implements EventI with coinage helpers*/
 type Event struct {
 	*handlers.BaseHandler
 	Plan    *helpers.Plan

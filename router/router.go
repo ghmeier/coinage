@@ -86,16 +86,16 @@ func New(config *config.Root) (*Coinage, error) {
 		roaster.GET("/:id", b.roaster.View)
 		//roaster.PUT("/:id", b.roaster.Update)
 		roaster.DELETE("/:id", b.roaster.Deactivate)
-		plan := roaster.Group("/:id/plan")
-		{
-			plan.Use(b.plan.GetJWT())
-			plan.Use(b.plan.Time())
-			plan.GET("", b.plan.ViewAll)
-			plan.POST("", b.plan.New)
-			plan.GET("/:itemId", b.plan.View)
-			//roaster.PUT("/:id/plan/:itemId", b.plan.Update)
-			plan.DELETE("/:itemId", b.plan.Delete)
-		}
+	}
+	plan := b.router.Group("/api/roaster/:id/plan")
+	{
+		plan.Use(b.plan.GetJWT())
+		plan.Use(b.plan.Time())
+		plan.GET("", b.plan.ViewAll)
+		plan.POST("", b.plan.New)
+		plan.GET("/:itemId", b.plan.View)
+		//roaster.PUT("/:id/plan/:itemId", b.plan.Update)
+		plan.DELETE("/:itemId", b.plan.Delete)
 	}
 	customer := b.router.Group("/api/customer")
 	{

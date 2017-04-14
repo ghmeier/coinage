@@ -30,6 +30,12 @@ type SubscribeRequest struct {
 	Quantity  uint64    `json:"quantity" binding:"required"`
 }
 
+type Subscribed struct {
+	CustomerID  string    `json:"stripeCustomerId"`
+	ConnectedID string    `json:"connectedId"`
+	RoasterID   uuid.UUID `json:"roasterId"`
+}
+
 /*NewCustomer initializes and returns the id fields of a customer*/
 func NewCustomer(userID uuid.UUID, id string) *Customer {
 	return &Customer{
@@ -48,6 +54,14 @@ func NewSubscribeRequest(roasterID uuid.UUID, itemID uuid.UUID, frequency Freque
 	}
 }
 
+func NewSubscribed(customerID, connectedID string, roasterID uuid.UUID) *Subscribed {
+	return &Subscribed{
+		CustomerID:  customerID,
+		ConnectedID: connectedID,
+		RoasterID:   roasterID,
+	}
+}
+
 /*CustomersFromSQL returns a customer model slice from sql rows*/
 func CustomersFromSQL(rows *sql.Rows) ([]*Customer, error) {
 	customers := make([]*Customer, 0)
@@ -62,4 +76,17 @@ func CustomersFromSQL(rows *sql.Rows) ([]*Customer, error) {
 	}
 
 	return customers, nil
+}
+
+func SubscribedFromSQL(rows *sql.Rows) []*Subscribed {
+	s := make([]*Subscribed, 0)
+	defer rows.Close()
+
+	for rows.Next() {
+		sub := &Subscribed{}
+		rows.Scan(&sub.CustomerID, &sub.ConnectedID, &sub.RoasterID)
+		s = append(s, sub)
+	}
+
+	return s
 }

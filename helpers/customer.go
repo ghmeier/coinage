@@ -111,7 +111,11 @@ func (c *Customer) Subscribe(id uuid.UUID, roaster *models.Roaster, plan *models
 
 	stripe := plan.PlanIDs[interval-1]
 
-	_, err = c.Stripe.Subscribe(roaster, customer.CustomerID, stripe, quantity)
+	connectedID, err := c.Stripe.Subscribe(roaster, customer.CustomerID, stripe, quantity)
+	if err != nil {
+		return err
+	}
+	err = c.InsertSubscribed(customer.CustomerID, connectedID, roaster.ID)
 	return err
 }
 
@@ -136,4 +140,27 @@ func (c *Customer) Delete(id uuid.UUID) error {
 
 	err = c.sql.Modify("DELETE FROM customer_account WHERE userId=?", id)
 	return err
+}
+
+func (c *Customer) InsertSubscribed(customerID, connectedID string, roasterID uuid.UUID) error {
+	return c.sql.Modify(
+		"INSERT INTO subscribed (stripeCustomerId, connectedId, roasterId)VALUES(?,?,?)",
+		customerID,
+		connectedID,
+		roasterID.String())
+}
+
+func (c *Customer) GetSubscribedFromConnected(connectedID string) (*models.Subscribed, error) {
+	rows, err := c.sql.Select("SELECT stripeCustomerId, connectedId, roasterId FROM subscribed WHERE connectedId=?", connectedID)
+	if err != nil {
+		return nil, err
+	}
+
+	subs := models.SubscribedFromSQL(rows)
+
+	if len(subs) <= 0 {
+		return nil, fmt.Errorf("No stripe customer for id")
+	}
+
+	return subs[0], nil
 }

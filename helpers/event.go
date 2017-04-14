@@ -1,18 +1,9 @@
 package helpers
 
 import (
-	//	"fmt"
-
-	//	"github.com/pborman/uuid"
 	"github.com/stripe/stripe-go"
 
 	g "github.com/ghmeier/bloodlines/gateways"
-	//"github.com/ghmeier/coinage/gateways"
-	//	"github.com/ghmeier/coinage/models"
-	//towncenter "github.com/jakelong95/TownCenter/gateways"
-	//	t "github.com/jakelong95/TownCenter/models"
-	//warehouse "github.com/lcollin/warehouse/gateways"
-	//covenant "github.com/yuderekyu/covenant/gateways"
 )
 
 /*Event helps with manipulating roaster properties*/

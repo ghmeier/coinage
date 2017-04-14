@@ -85,12 +85,19 @@ func (e *eventWorker) invoiceCreate(event *stripe.Event) {
 }
 
 func (e *eventWorker) createOrder(customerID string, subscription *stripe.InvoiceLine) error {
-	customer, err := e.Customer.GetByCustomerID(customerID)
+	subscribed, err := e.Customer.GetSubscribedFromConnected(customerID)
+	if err != nil {
+		return err
+	}
+	if subscribed == nil {
+		return fmt.Errorf("No subscribed for connectedId %s", customerID)
+	}
+	customer, err := e.Customer.GetByCustomerID(subscribed.CustomerID)
 	if err != nil {
 		return err
 	}
 	if customer == nil {
-		return fmt.Errorf("No customer for customerId %s", customerID)
+		return fmt.Errorf("No customer for customerId %s", subscribed.CustomerID)
 	}
 
 	itemID := uuid.Parse(subscription.Plan.Meta["itemId"])

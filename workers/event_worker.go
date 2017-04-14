@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pborman/uuid"
 	"github.com/stripe/stripe-go"
 
 	"github.com/ghmeier/bloodlines/gateways"
@@ -12,6 +13,7 @@ import (
 	cg "github.com/ghmeier/coinage/gateways"
 	"github.com/ghmeier/coinage/helpers"
 	covenant "github.com/yuderekyu/covenant/gateways"
+	cmodels "github.com/yuderekyu/covenant/models"
 )
 
 var Events = map[string]bool{
@@ -91,10 +93,14 @@ func (e *eventWorker) createOrder(customerID string, subscription *stripe.Invoic
 		return fmt.Errorf("No customer for customerId %s", customerID)
 	}
 
-	itemID := subscription.Plan.Meta["itemId"]
+	itemID := uuid.Parse(subscription.Plan.Meta["itemId"])
 	userID := customer.UserID
 	fmt.Printf("Received invoice for %s, on for item %s\n", userID, itemID)
-	//TODO: send order creation request based on itemID and userID
 
-	return nil
+	r := &cmodels.RequestOrder{
+		UserID: userID,
+		ItemID: itemID,
+	}
+	_, err = e.C.NewOrder(r)
+	return err
 }

@@ -3,15 +3,19 @@ package workers
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/pborman/uuid"
 	"github.com/stripe/stripe-go"
 
 	"github.com/ghmeier/bloodlines/gateways"
 	"github.com/ghmeier/bloodlines/handlers"
+	bmodels "github.com/ghmeier/bloodlines/models"
 	b "github.com/ghmeier/bloodlines/workers"
 	cg "github.com/ghmeier/coinage/gateways"
 	"github.com/ghmeier/coinage/helpers"
+	towncenter "github.com/jakelong95/TownCenter/gateways"
 	covenant "github.com/yuderekyu/covenant/gateways"
 	cmodels "github.com/yuderekyu/covenant/models"
 )
@@ -26,7 +30,9 @@ var Events = map[string]bool{
 
 type eventWorker struct {
 	RB       gateways.RabbitI
+	B        gateways.Bloodlines
 	C        covenant.Covenant
+	TC       towncenter.TownCenterI
 	Stripe   cg.Stripe
 	Customer *helpers.Customer
 }
@@ -34,7 +40,9 @@ type eventWorker struct {
 func NewEvent(ctx *handlers.GatewayContext) b.Worker {
 	worker := &eventWorker{
 		RB:       ctx.Rabbit,
+		B:        ctx.Bloodlines,
 		C:        ctx.Covenant,
+		TC:       ctx.TownCenter,
 		Stripe:   ctx.Stripe,
 		Customer: helpers.NewCustomer(ctx.Sql, ctx.Stripe, ctx.TownCenter),
 	}
@@ -102,7 +110,20 @@ func (e *eventWorker) createOrder(customerID string, subscription *stripe.Invoic
 
 	itemID := uuid.Parse(subscription.Plan.Meta["itemId"])
 	userID := customer.UserID
+	user, err := e.TC.GetUser(userID)
 	fmt.Printf("Received invoice for %s, on for %s\n", userID, itemID)
+	_, err = e.B.ActivateTrigger("invoice_create", &bmodels.Receipt{
+		UserID: userID,
+		Values: map[string]string{
+			"first_name": user.FirstName,
+			"last_name":  user.LastName,
+			"amount":     strconv.Itoa(int(subscription.Amount)),
+			"date":       time.Now().Local().Format("Mon Jan 2 15:04:05 MST 2006"),
+		},
+	})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	r := &cmodels.RequestOrder{
 		UserID: userID,

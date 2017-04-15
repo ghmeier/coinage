@@ -56,6 +56,7 @@ func New(config *config.Root) (*Coinage, error) {
 	towncenter := towncenter.NewTownCenter(config.TownCenter)
 	warehouse := warehouse.NewWarehouse(config.Warehouse)
 	covenant := covenant.NewCovenant(config.Covenant)
+	bloodlines := g.NewBloodlines(config.Bloodlines)
 
 	ctx := &h.GatewayContext{
 		Sql:        sql,
@@ -65,6 +66,7 @@ func New(config *config.Root) (*Coinage, error) {
 		Warehouse:  warehouse,
 		Covenant:   covenant,
 		Rabbit:     rabbit,
+		Bloodlines: bloodlines,
 	}
 
 	b := &Coinage{

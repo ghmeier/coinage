@@ -126,8 +126,9 @@ func (e *eventWorker) createOrder(customerID string, subscription *stripe.Invoic
 	}
 
 	r := &cmodels.RequestOrder{
-		UserID: userID,
-		ItemID: itemID,
+		UserID:    userID,
+		ItemID:    itemID,
+		NextOrder: time.Unix(subscription.Period.End, 0),
 	}
 	_, err = e.C.NewOrder(r)
 	return err

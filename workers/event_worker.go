@@ -3,7 +3,6 @@ package workers
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/pborman/uuid"
@@ -117,7 +116,7 @@ func (e *eventWorker) createOrder(customerID string, subscription *stripe.Invoic
 		Values: map[string]string{
 			"first_name": user.FirstName,
 			"last_name":  user.LastName,
-			"amount":     strconv.Itoa(int(subscription.Amount)),
+			"amount":     fmt.Sprintf("%.2f", int(subscription.Amount)/10),
 			"date":       time.Now().Local().Format("Mon Jan 2 15:04:05 MST 2006"),
 		},
 	})

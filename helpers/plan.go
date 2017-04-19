@@ -37,7 +37,6 @@ func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models
 	}
 
 	planIDs := make([]string, 0)
-	var consumerPrice uint64
 	for i := 1; i < len(models.Frequencies); i++ {
 		stripe, err := p.Stripe.NewPlan(roaster.Secret, item, models.Frequencies[i])
 		if err != nil {
@@ -45,7 +44,6 @@ func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models
 		}
 
 		planIDs = append(planIDs, stripe.ID)
-		consumerPrice = stripe.Amount
 	}
 
 	plan := models.NewPlan(roaster.ID, req.ItemID, planIDs)
@@ -58,7 +56,7 @@ func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models
 		return nil, err
 	}
 
-	item.ConsumerPrice = float64(consumerPrice) / 100.0 * (1.00 + p.Stripe.ApplicationFee())
+	item.ConsumerPrice = float64(item.ConsumerPrice) / 100.0 * (1.00 + p.Stripe.ApplicationFee())
 	p.Warehouse.UpdateItem(item)
 	return plan, nil
 }

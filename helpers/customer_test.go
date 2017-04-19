@@ -212,9 +212,9 @@ func TestSubscribeSuccess(t *testing.T) {
 			AddRow(user.ID.String(), "customerID"))
 	mocks.sql.ExpectPrepare("INSERT INTO subscribed").
 		ExpectExec().
-		WithArgs("customerID", "connectedID", roaster.ID.String()).
+		WithArgs("customerID", "connectedID", roaster.ID.String(), "sub").
 		WillReturnResult(sqlmock.NewResult(1, 1))
-	mocks.stripe.On("Subscribe", roaster, "customerID", plan.PlanIDs[0], uint64(1)).Return("connectedID", nil)
+	mocks.stripe.On("Subscribe", roaster, "customerID", plan.PlanIDs[0], uint64(1)).Return("connectedID", &stripe.Sub{ID: "sub"}, nil)
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
 	err := customer.Subscribe(user.ID, roaster, plan, freq, uint64(1))
@@ -286,7 +286,7 @@ func TestSubscribeFail(t *testing.T) {
 		WithArgs(user.ID.String()).
 		WillReturnRows(getCustomerRows().
 			AddRow(user.ID.String(), "customerID"))
-	mocks.stripe.On("Subscribe", roaster, "customerID", plan.PlanIDs[1], uint64(1)).Return("", fmt.Errorf("some error"))
+	mocks.stripe.On("Subscribe", roaster, "customerID", plan.PlanIDs[1], uint64(1)).Return("", &stripe.Sub{ID: "sub"}, fmt.Errorf("some error"))
 	mocks.stripe.On("GetCustomer", "customerID").Return(c, nil)
 
 	err := customer.Subscribe(user.ID, roaster, plan, freq, uint64(1))

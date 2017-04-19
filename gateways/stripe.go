@@ -22,7 +22,7 @@ type Stripe interface {
 	NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	NewPlan(secret string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
 	GetPlan(secret, pid string) (*stripe.Plan, error)
-	Subscribe(roaster *models.Roaster, id, planID string, quantity uint64) (string, error)
+	Subscribe(roaster *models.Roaster, id, planID string, quantity uint64) (string, *stripe.Sub, error)
 }
 
 type stripeS struct {
@@ -159,7 +159,7 @@ func (s *stripeS) GetPlan(secret string, pid string) (*stripe.Plan, error) {
 	return plan, nil
 }
 
-func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, quantity uint64) (string, error) {
+func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, quantity uint64) (string, *stripe.Sub, error) {
 	client := client.New(roaster.Secret, nil)
 	tParams := &stripe.TokenParams{
 		Customer: customerID,
@@ -168,7 +168,7 @@ func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, 
 
 	customerToken, err := s.c.Tokens.New(tParams)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	cParams := &stripe.CustomerParams{
@@ -183,10 +183,10 @@ func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, 
 
 	customer, err := client.Customers.New(cParams)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
-	_, err = client.Subs.New(&stripe.SubParams{
+	sub, err := client.Subs.New(&stripe.SubParams{
 		Customer: customer.ID,
 		Plan:     planID,
 		Quantity: quantity,
@@ -197,8 +197,8 @@ func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, 
 		},
 	})
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
-	return customer.ID, nil
+	return customer.ID, sub, nil
 }

@@ -111,11 +111,11 @@ func (c *Customer) Subscribe(id uuid.UUID, roaster *models.Roaster, plan *models
 
 	stripe := plan.PlanIDs[interval-1]
 
-	connectedID, err := c.Stripe.Subscribe(roaster, customer.CustomerID, stripe, quantity)
+	connectedID, sub, err := c.Stripe.Subscribe(roaster, customer.CustomerID, stripe, quantity)
 	if err != nil {
 		return err
 	}
-	err = c.InsertSubscribed(customer.CustomerID, connectedID, roaster.ID)
+	err = c.InsertSubscribed(customer.CustomerID, connectedID, sub.ID, roaster.ID)
 	return err
 }
 
@@ -142,16 +142,17 @@ func (c *Customer) Delete(id uuid.UUID) error {
 	return err
 }
 
-func (c *Customer) InsertSubscribed(customerID, connectedID string, roasterID uuid.UUID) error {
+func (c *Customer) InsertSubscribed(customerID, connectedID, stripeSubId string, roasterID uuid.UUID) error {
 	return c.sql.Modify(
-		"INSERT INTO subscribed (stripeCustomerId, connectedId, roasterId)VALUES(?,?,?)",
+		"INSERT INTO subscribed (stripeCustomerId, connectedId, roasterId, stripeSubId)VALUES(?,?,?,?)",
 		customerID,
 		connectedID,
-		roasterID.String())
+		roasterID.String(),
+		stripeSubId)
 }
 
-func (c *Customer) GetSubscribedFromConnected(connectedID string) (*models.Subscribed, error) {
-	rows, err := c.sql.Select("SELECT stripeCustomerId, connectedId, roasterId FROM subscribed WHERE connectedId=?", connectedID)
+func (c *Customer) GetSubscribed(customerID string) (*models.Subscribed, error) {
+	rows, err := c.sql.Select("SELECT stripeCustomerId, connectedId, roasterId, stripeSubId FROM subscribed WHERE stripeCustomerId=?", customerID)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +160,22 @@ func (c *Customer) GetSubscribedFromConnected(connectedID string) (*models.Subsc
 	subs := models.SubscribedFromSQL(rows)
 
 	if len(subs) <= 0 {
-		return nil, fmt.Errorf("No stripe customer for id")
+		return nil, fmt.Errorf("No stripe customer for customer id")
+	}
+
+	return subs[0], nil
+}
+
+func (c *Customer) GetSubscribedFromConnected(connectedID string) (*models.Subscribed, error) {
+	rows, err := c.sql.Select("SELECT stripeCustomerId, connectedId, roasterId, stripeSubId FROM subscribed WHERE connectedId=?", connectedID)
+	if err != nil {
+		return nil, err
+	}
+
+	subs := models.SubscribedFromSQL(rows)
+
+	if len(subs) <= 0 {
+		return nil, fmt.Errorf("No stripe customer for connected id")
 	}
 
 	return subs[0], nil

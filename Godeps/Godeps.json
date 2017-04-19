@@ -52,27 +52,27 @@
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/config",
-			"Rev": "a871b0df77f26a343572a78b3d234509016e8d30"
+			"Rev": "0b3af796b621985432292aae38fbc41259ee8c92"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/gateways",
-			"Rev": "a871b0df77f26a343572a78b3d234509016e8d30"
+			"Rev": "0b3af796b621985432292aae38fbc41259ee8c92"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/handlers",
-			"Rev": "a871b0df77f26a343572a78b3d234509016e8d30"
+			"Rev": "0b3af796b621985432292aae38fbc41259ee8c92"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/helpers",
-			"Rev": "a871b0df77f26a343572a78b3d234509016e8d30"
+			"Rev": "0b3af796b621985432292aae38fbc41259ee8c92"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/models",
-			"Rev": "a871b0df77f26a343572a78b3d234509016e8d30"
+			"Rev": "0b3af796b621985432292aae38fbc41259ee8c92"
 		},
 		{
 			"ImportPath": "github.com/ghmeier/bloodlines/workers",
-			"Rev": "a871b0df77f26a343572a78b3d234509016e8d30"
+			"Rev": "0b3af796b621985432292aae38fbc41259ee8c92"
 		},
 		{
 			"ImportPath": "github.com/gin-gonic/gin/binding",

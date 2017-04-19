@@ -35,20 +35,6 @@ func (_m *Stripe) AddSource(id string, token string) (*stripe.Customer, error) {
 	return r0, r1
 }
 
-// ApplicationFee provides a mock function with given fields:
-func (_m *Stripe) ApplicationFee() float64 {
-	ret := _m.Called()
-
-	var r0 float64
-	if rf, ok := ret.Get(0).(func() float64); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(float64)
-	}
-
-	return r0
-}
-
 // DeleteCustomer provides a mock function with given fields: id
 func (_m *Stripe) DeleteCustomer(id string) error {
 	ret := _m.Called(id)
@@ -58,6 +44,20 @@ func (_m *Stripe) DeleteCustomer(id string) error {
 		r0 = rf(id)
 	} else {
 		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// FeePercent provides a mock function with given fields:
+func (_m *Stripe) FeePercent() float64 {
+	ret := _m.Called()
+
+	var r0 float64
+	if rf, ok := ret.Get(0).(func() float64); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(float64)
 	}
 
 	return r0

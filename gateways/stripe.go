@@ -2,7 +2,6 @@ package gateways
 
 import (
 	"fmt"
-	//"time"
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
@@ -22,6 +21,7 @@ type Stripe interface {
 	NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	NewPlan(secret string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
 	GetPlan(secret, pid string) (*stripe.Plan, error)
+	ApplicationFee() float64
 	Subscribe(roaster *models.Roaster, id, planID string, quantity uint64) (string, *stripe.Sub, error)
 }
 
@@ -132,7 +132,7 @@ func (s *stripeS) NewPlan(secret string, item *item.Item, freq models.Frequency)
 	client := client.New(secret, nil)
 	params := &stripe.PlanParams{
 		ID:            fmt.Sprintf("%s-%s", item.ID.String(), string(freq)),
-		Amount:        uint64(item.ConsumerPrice * 100),
+		Amount:        uint64(item.ProviderPrice * 100),
 		Currency:      "usd",
 		Interval:      "week",
 		IntervalCount: uint64(interval),
@@ -157,6 +157,10 @@ func (s *stripeS) GetPlan(secret string, pid string) (*stripe.Plan, error) {
 	}
 
 	return plan, nil
+}
+
+func (s *stripeS) ApplicationFee() float64 {
+	return s.config.ApplicationFee
 }
 
 func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, quantity uint64) (string, *stripe.Sub, error) {
@@ -187,9 +191,10 @@ func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, 
 	}
 
 	sub, err := client.Subs.New(&stripe.SubParams{
-		Customer: customer.ID,
-		Plan:     planID,
-		Quantity: quantity,
+		Customer:   customer.ID,
+		Plan:       planID,
+		Quantity:   quantity,
+		FeePercent: s.config.ApplicationFee,
 		Params: stripe.Params{
 			Meta: map[string]string{
 				"cust": customerID,

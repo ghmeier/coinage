@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"database/sql"
-	"fmt"
 	"strings"
 
 	"github.com/pborman/uuid"
@@ -12,7 +11,6 @@ import (
 	"github.com/ghmeier/coinage/gateways"
 	"github.com/ghmeier/coinage/models"
 	w "github.com/lcollin/warehouse/gateways"
-	//item "github.com/lcollin/warehouse/models"
 )
 
 /*Plan manages retrieval and manipulating roaster plan information*/
@@ -39,16 +37,15 @@ func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models
 	}
 
 	planIDs := make([]string, 0)
+	var consumerPrice uint64
 	for i := 1; i < len(models.Frequencies); i++ {
 		stripe, err := p.Stripe.NewPlan(roaster.Secret, item, models.Frequencies[i])
 		if err != nil {
 			return nil, err
 		}
 
-		fmt.Println(stripe)
-		fmt.Println(planIDs)
 		planIDs = append(planIDs, stripe.ID)
-		fmt.Println(planIDs)
+		consumerPrice = stripe.Amount
 	}
 
 	plan := models.NewPlan(roaster.ID, req.ItemID, planIDs)
@@ -60,6 +57,9 @@ func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models
 	if err != nil {
 		return nil, err
 	}
+
+	item.ConsumerPrice = float64(consumerPrice) / 100.0 * p.Stripe.ApplicationFee()
+	p.Warehouse.UpdateItem(item)
 	return plan, nil
 }
 

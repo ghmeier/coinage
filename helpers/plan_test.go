@@ -29,9 +29,15 @@ func TestInsertPlanSuccess(t *testing.T) {
 
 	mocks.warehouse.On("GetItemByID", i.ID).Return(i, nil)
 	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[4]).Return(plans[0], nil)
+	mocks.stripe.On("ApplicationFee").Return(0.01)
 	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[1]).Return(plans[1], nil)
+	mocks.stripe.On("ApplicationFee").Return(0.01)
 	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[2]).Return(plans[2], nil)
+	mocks.stripe.On("ApplicationFee").Return(0.01)
 	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[3]).Return(plans[3], nil)
+	mocks.stripe.On("ApplicationFee").Return(0.01)
+	i.ConsumerPrice = i.ProviderPrice * 0.01
+	mocks.warehouse.On("UpdateItem", i).Return(i, nil)
 	mocks.sql.ExpectPrepare("INSERT INTO plan").
 		ExpectExec().
 		WillReturnResult(sqlmock.NewResult(1, 1))

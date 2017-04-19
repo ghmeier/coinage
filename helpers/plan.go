@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/pborman/uuid"
@@ -56,7 +57,10 @@ func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models
 		return nil, err
 	}
 
-	item.ConsumerPrice = float64(item.ConsumerPrice) / 100.0 * (1.00 + p.Stripe.FeePercent()/100.00)
+	expressoFee := item.ConsumerPrice * p.Stripe.ApplicationFee() / 100.0
+	stripeFee := (item.ConsumerPrice + expressoFee) * p.Stripe.FeePercent() / 100.0
+	item.ConsumerPrice = item.ConsumerPrice + expressoFee + stripeFee
+	fmt.Printf("e %f, s %f, stripe %f\n", expressoFee, stripeFee, item.ConsumerPrice)
 	p.Warehouse.UpdateItem(item)
 	return plan, nil
 }

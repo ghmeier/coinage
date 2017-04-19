@@ -21,7 +21,7 @@ type Stripe interface {
 	NewAccount(user *tmodels.User, roaster *tmodels.Roaster) (*stripe.Account, error)
 	NewPlan(secret string, item *item.Item, freq models.Frequency) (*stripe.Plan, error)
 	GetPlan(secret, pid string) (*stripe.Plan, error)
-	ApplicationFee() float64
+	FeePercent() float64
 	Subscribe(roaster *models.Roaster, id, planID string, quantity uint64) (string, *stripe.Sub, error)
 }
 
@@ -159,8 +159,8 @@ func (s *stripeS) GetPlan(secret string, pid string) (*stripe.Plan, error) {
 	return plan, nil
 }
 
-func (s *stripeS) ApplicationFee() float64 {
-	return s.config.ApplicationFee
+func (s *stripeS) FeePercent() float64 {
+	return s.config.ApplicationFee + s.config.StripeFeePercent
 }
 
 func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, quantity uint64) (string, *stripe.Sub, error) {

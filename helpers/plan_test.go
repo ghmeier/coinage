@@ -36,7 +36,7 @@ func TestInsertPlanSuccess(t *testing.T) {
 	mocks.stripe.On("ApplicationFee").Return(0.01)
 	mocks.stripe.On("NewPlan", roast.Secret, i, models.Frequencies[3]).Return(plans[3], nil)
 	mocks.stripe.On("ApplicationFee").Return(0.01)
-	i.ConsumerPrice = i.ProviderPrice * 0.01
+	i.ConsumerPrice = i.ProviderPrice * 1.01
 	mocks.warehouse.On("UpdateItem", i).Return(i, nil)
 	mocks.sql.ExpectPrepare("INSERT INTO plan").
 		ExpectExec().

@@ -58,7 +58,7 @@ func (p *Plan) Insert(roaster *models.Roaster, req *models.PlanRequest) (*models
 		return nil, err
 	}
 
-	item.ConsumerPrice = float64(consumerPrice) / 100.0 * p.Stripe.ApplicationFee()
+	item.ConsumerPrice = float64(consumerPrice) / 100.0 * (1.00 + p.Stripe.ApplicationFee())
 	p.Warehouse.UpdateItem(item)
 	return plan, nil
 }

@@ -116,7 +116,7 @@ func (e *eventWorker) createOrder(customerID string, subscription *stripe.Invoic
 		Values: map[string]string{
 			"first_name": user.FirstName,
 			"last_name":  user.LastName,
-			"amount":     fmt.Sprintf("%.2f", float64(subscription.Amount)/10.00),
+			"amount":     fmt.Sprintf("%.2f", float64(subscription.Amount)/100.00),
 			"date":       time.Now().Local().Format("Mon Jan 2 15:04:05 MST 2006"),
 		},
 	})

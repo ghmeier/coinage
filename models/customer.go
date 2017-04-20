@@ -35,6 +35,7 @@ type Subscribed struct {
 	ConnectedID string    `json:"connectedId"`
 	RoasterID   uuid.UUID `json:"roasterId"`
 	StripeSubID string    `json:"stripeSubId"`
+	ItemID      uuid.UUID `json:"itemId"`
 }
 
 /*NewCustomer initializes and returns the id fields of a customer*/
@@ -55,12 +56,13 @@ func NewSubscribeRequest(roasterID uuid.UUID, itemID uuid.UUID, frequency Freque
 	}
 }
 
-func NewSubscribed(customerID, connectedID, stripeSubID string, roasterID uuid.UUID) *Subscribed {
+func NewSubscribed(customerID, connectedID, stripeSubID string, roasterID, itemID uuid.UUID) *Subscribed {
 	return &Subscribed{
 		CustomerID:  customerID,
 		ConnectedID: connectedID,
 		RoasterID:   roasterID,
 		StripeSubID: stripeSubID,
+		ItemID:      itemID,
 	}
 }
 
@@ -86,7 +88,7 @@ func SubscribedFromSQL(rows *sql.Rows) []*Subscribed {
 
 	for rows.Next() {
 		sub := &Subscribed{}
-		rows.Scan(&sub.CustomerID, &sub.ConnectedID, &sub.RoasterID, &sub.StripeSubID)
+		rows.Scan(&sub.CustomerID, &sub.ConnectedID, &sub.RoasterID, &sub.StripeSubID, &sub.ItemId)
 		s = append(s, sub)
 	}
 

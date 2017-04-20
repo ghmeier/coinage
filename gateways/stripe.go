@@ -5,6 +5,7 @@ import (
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
+	"github.com/stripe/stripe-go/sub"
 
 	"github.com/ghmeier/bloodlines/config"
 	"github.com/ghmeier/coinage/models"
@@ -24,6 +25,7 @@ type Stripe interface {
 	ApplicationFee() float64
 	FeePercent() float64
 	Subscribe(roaster *models.Roaster, id, planID string, quantity uint64) (string, *stripe.Sub, error)
+	Unsubscribe(roaster *models.Roaster, subscriptionID string) error
 }
 
 type stripeS struct {
@@ -211,4 +213,12 @@ func (s *stripeS) Subscribe(roaster *models.Roaster, customerID, planID string, 
 	}
 
 	return customer.ID, sub, nil
+}
+
+func (s *stripeS) Unsubscribe(roaster *models.Roaster, subscriptionID string) error {
+	client.New(roaster.Secret, nil)
+	_, err := client.Subs.Cancel(subscriptionID)
+	if err != nil {
+		return err
+	}
 }
